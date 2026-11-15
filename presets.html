@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPUD Presets · Every built-in look, before and after</title>
+<meta name="description" content="All 51 of SPUD's built-in looks, shown before and after on real footage, with where each one works best.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SPUD Presets: every built-in look, before and after">
+<meta property="og:image" content="https://luigijohn.github.io/spud-site/assets/og.png">
+<meta property="og:url" content="https://luigijohn.github.io/spud-site/presets.html">
+<link rel="canonical" href="https://luigijohn.github.io/spud-site/presets.html">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1C1D1B; --raised:#262825; --paper:#F2F1EC; --fog:#A3A69F; --line:#3A3C38;
+  --potato:#D9667F; --potato-light:#E8899D; --pine-light:#8FB09D;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --max:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--paper);font:400 17px/1.6 var(--sans);overflow-x:hidden}
+a{color:var(--potato-light);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.label{color:var(--pine-light)}
+.muted{color:var(--fog)}
+
+/* nav */
+nav{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--ink) 86%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--paper);font-weight:600;font-size:17px;letter-spacing:-.01em}
+.brand:hover{text-decoration:none}
+.brand img{width:28px;height:28px;border-radius:7px}
+nav .links{display:flex;gap:24px;margin-left:auto;font-size:15px}
+nav .links a{color:var(--fog)}
+nav .links a:hover{color:var(--paper);text-decoration:none}
+nav .links a.btn,nav .links a.btn:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:10px;font:600 15px/1 var(--sans);color:var(--ink);background:var(--potato-light);padding:13px 20px;border-radius:10px;transition:transform .15s,box-shadow .2s;box-shadow:0 0 0 0 rgba(232,137,157,0)}
+.btn:hover{text-decoration:none;box-shadow:0 0 28px rgba(232,137,157,.35)}
+.btn:active{transform:scale(.97)}
+.btn.small{padding:9px 14px;font-size:14px;border-radius:8px}
+.btn.ghost{background:transparent;color:var(--paper);box-shadow:inset 0 0 0 1px var(--line)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 1px var(--fog)}
+.btn svg{width:16px;height:16px}
+
+/* hero */
+.hero{padding:88px 0 40px;text-align:center}
+.icon{width:112px;height:112px;margin:0 auto 28px;border-radius:26px;filter:drop-shadow(0 0 32px rgba(232,137,157,.28))}
+h1{font-weight:600;font-size:clamp(38px,6.4vw,68px);line-height:1.04;letter-spacing:-.025em;margin:0 auto 20px;max-width:14ch}
+h1 em{font-style:normal;color:var(--potato-light)}
+.lede{font-size:clamp(17px,2vw,20px);color:var(--fog);max-width:40rem;margin:0 auto 34px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.meta{margin-top:16px}
+.shot{margin:64px auto 0;max-width:1040px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--raised);box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.02)}
+.shot img{width:100%;height:auto}
+.shot.placeholder{aspect-ratio:16/10;display:grid;place-items:center;color:var(--fog)}
+
+/* sections */
+section{padding:96px 0;border-top:1px solid var(--line)}
+h2{font-weight:600;font-size:clamp(28px,4vw,40px);line-height:1.12;letter-spacing:-.02em;margin:12px 0 16px;max-width:22ch}
+.intro{color:var(--fog);max-width:40rem;margin:0 0 48px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:24px}
+.card h3{font-size:17px;font-weight:600;margin:0 0 8px;letter-spacing:-.005em}
+.card p{margin:0;color:var(--fog);font-size:15px;line-height:1.55}
+.card .k{color:var(--potato-light);font-family:var(--mono);font-size:12px;letter-spacing:.08em;margin-bottom:14px;display:block}
+
+.cols{max-width:46rem}
+.shot.wide{margin:48px 0 0;max-width:none}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.split .shot{margin:0}
+.nodes{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 0;padding:0;list-style:none}
+.nodes li{font:500 13px/1 var(--mono);padding:9px 12px;border-radius:8px;background:var(--raised);border:1px solid var(--line);color:var(--paper)}
+.nodes li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--potato-light);margin-right:8px;vertical-align:1px;opacity:.85}
+ul.ticks{list-style:none;padding:0;margin:20px 0 0}
+ul.ticks li{padding:8px 0 8px 26px;position:relative;color:var(--fog);border-bottom:1px solid var(--line)}
+ul.ticks li strong{color:var(--paper);font-weight:500}
+ul.ticks li::before{content:"";position:absolute;left:2px;top:17px;width:10px;height:6px;border-left:2px solid var(--pine-light);border-bottom:2px solid var(--pine-light);transform:rotate(-45deg)}
+
+.platforms{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.platforms span{font:500 13px/1 var(--mono);padding:9px 12px;border-radius:999px;border:1px solid var(--line);color:var(--fog)}
+
+/* download */
+.download{text-align:center}
+.download h2{margin-left:auto;margin-right:auto}
+.download .intro{margin-left:auto;margin-right:auto}
+.reqs{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-top:36px;color:var(--fog);font-size:14px}
+.reqs b{display:block;color:var(--paper);font-weight:500}
+
+footer{border-top:1px solid var(--line);padding:40px 0 56px;color:var(--fog);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:20px 40px;align-items:flex-start;justify-content:space-between}
+footer .endorse img{height:22px;width:auto;opacity:.95}
+footer p{margin:0 0 6px}
+
+@media (max-width:820px){
+  .split{grid-template-columns:1fr;gap:32px}
+  .split.rev .shot{order:-1}
+  nav .links a.hide-sm{display:none}
+  section{padding:72px 0}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  nav .links{gap:16px}
+  .hero{padding:56px 0 24px}
+  .icon{width:88px;height:88px;border-radius:20px}
+  .shot{margin-top:44px;border-radius:10px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+
+/* presets page */
+.phead{padding:72px 0 8px}
+.phead h1{font-size:clamp(34px,5.4vw,56px);max-width:18ch;margin:0 0 16px}
+.phead .lede{margin:0 0 28px;text-align:left}
+.how{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:8px 0 0;padding:0;list-style:none}
+.how li{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:16px 18px;color:var(--fog);font-size:15px}
+.how li b{display:block;color:var(--paper);font-weight:500;margin-bottom:4px}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}
+.jump a{font:500 13px/1 var(--mono);padding:9px 12px;border-radius:999px;border:1px solid var(--line);color:var(--fog)}
+.jump a:hover{color:var(--paper);border-color:var(--fog);text-decoration:none}
+section.group{padding:64px 0}
+@media (max-width:640px){.how{grid-template-columns:1fr}}
+.looks{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:20px}
+.look{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:12px 12px 16px;min-width:0}
+.look h3{font-size:17px;font-weight:600;margin:14px 4px 6px;letter-spacing:-.005em}
+.look .what{margin:0 4px 8px;color:var(--paper);font-size:15px;line-height:1.5}
+.look .best{margin:0 4px;color:var(--fog);font-size:14.5px}
+.look .best .mono{color:var(--potato-light);margin-right:8px;font-size:11px}
+.look .src{margin:10px 4px 0;color:var(--fog);font-size:11px;opacity:.8}
+.cmp{position:relative;aspect-ratio:3/2;max-width:100%;border-radius:9px;overflow:hidden;background:#000;touch-action:pan-y;user-select:none}
+.cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cmp .a{clip-path:inset(0 0 0 var(--pos))}
+.cmp.tall img{object-fit:contain;background:#0e0f0d}
+.cmp .bar{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 6px rgba(0,0,0,.5);pointer-events:none}
+.cmp .bar span{position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.4)}
+.cmp .bar span::before{content:"\2039\00a0\203A";position:absolute;inset:0;display:grid;place-items:center;color:#333;font:700 15px/1 sans-serif}
+.cmp input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize}
+.cmp input:focus-visible+.bar{background:var(--potato-light)}
+.tag{position:absolute;top:8px;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font:500 11px/1.3 var(--mono);pointer-events:none}
+.tag.l{left:8px}.tag.r{right:8px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/icon-256.png" alt="">SPUD</a>
+    <div class="links">
+      <a class="hide-sm" href="./#grade">Grade</a>
+      <a class="hide-sm" href="./#edit">Edit</a>
+      <a class="hide-sm" href="presets.html">Presets</a>
+      <a class="btn small" href="./#download">Download</a>
+    </div>
+  </div>
+</nav>
+
+<header class="phead" id="top">
+  <div class="wrap">
+    <span class="mono label">Presets</span>
+    <h1>51 looks, shown on real footage.</h1>
+    <p class="lede">Every built-in look in SPUD, in the five groups the app shows them in. Drag the divider on each picture to compare the shot before the look with the look applied. Every frame is real footage from a Fujifilm X-T5 or X-M5 or an iPhone.</p>
+    <ul class="how">
+      <li><b>Exposure first</b>Set each clip's exposure and white balance, then apply a look. Looks never change exposure or white balance.</li>
+      <li><b>Dial the strength</b>A look lands in its own nodes. Lower its Mix to use it at half strength, or trim any node.</li>
+      <li><b>Neutral versions</b>Each family has a Neutral look: its tone without its tint, for matching a set or as a base to grade from.</li>
+      <li><b>Log footage</b>F-Log2, Apple Log and other log clips get a camera match under every look, so looks read the same as on Rec.709.</li>
+    </ul>
+    <div class="jump"><a href="#cinematic">Cinematic</a><a href="#nature">Nature</a><a href="#streets">Streets</a><a href="#travel">Travel</a><a href="#diary">Diary</a></div>
+  </div>
+</header>
+
+<section class="group" id="cinematic">
+  <div class="wrap">
+    <span class="mono label">Cinematic</span>
+    <h2>Cinematic looks</h2>
+    <p class="intro">Single-idea film looks: glow, halation, print contrast, black and white.</p>
+    <div class="looks">
+<article class="look" id="soft-glow">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf6951.jpg" alt="Soft Glow: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/soft-glow.jpg" alt="Soft Glow applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Soft Glow" id="cmp-soft-glow">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Soft Glow</span>
+  </div>
+  <h3>Soft Glow</h3>
+  <p class="what">Gentle bloom on bright areas, slightly lower contrast.</p>
+  <p class="best"><span class="mono">Best for</span>Portraits, backlit shots, a dreamy touch without changing colour.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="cine-halation">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0285.jpg" alt="Cine Halation: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/cine-halation.jpg" alt="Cine Halation applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Cine Halation" id="cmp-cine-halation">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Cine Halation</span>
+  </div>
+  <h3>Cine Halation</h3>
+  <p class="what">Red-orange film halo around highlights, glow, grain, slightly warm.</p>
+  <p class="best"><span class="mono">Best for</span>Night lights, sunsets, shots with bright points of light.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="portrait-film">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9712.jpg" alt="Portrait Film: the shot before the look" loading="lazy" width="428" height="760">
+    <img class="a" src="assets/presets/portrait-film.jpg" alt="Portrait Film applied" loading="lazy" width="428" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Portrait Film" id="cmp-portrait-film">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Portrait Film</span>
+  </div>
+  <h3>Portrait Film</h3>
+  <p class="what">Warm portrait colour negative: soft contrast, gentle highlights, flattering skin, quiet greens and blues.</p>
+  <p class="best"><span class="mono">Best for</span>Portraits and people in warm or window light.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="print-film">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0270.jpg" alt="Print Film: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/print-film.jpg" alt="Print Film applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Print Film" id="cmp-print-film">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Print Film</span>
+  </div>
+  <h3>Print Film</h3>
+  <p class="what">Punchy contrast, slight desaturation, halation, grain, strong vignette.</p>
+  <p class="best"><span class="mono">Best for</span>A classic printed-film feel on almost anything.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="teal-orange">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0285.jpg" alt="Teal &amp; Orange: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/teal-orange.jpg" alt="Teal &amp; Orange applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Teal &amp; Orange" id="cmp-teal-orange">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Teal &amp; Orange</span>
+  </div>
+  <h3>Teal &amp; Orange</h3>
+  <p class="what">Teal shadows, orange highlights and skin, added contrast.</p>
+  <p class="best"><span class="mono">Best for</span>Blockbuster-style city and people shots.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="faded-matte">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9711.jpg" alt="Faded Matte: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/faded-matte.jpg" alt="Faded Matte applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Faded Matte" id="cmp-faded-matte">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Faded Matte</span>
+  </div>
+  <h3>Faded Matte</h3>
+  <p class="what">Lifted blacks, low contrast, muted colour, grain.</p>
+  <p class="best"><span class="mono">Best for</span>Nostalgic, retro or calm lifestyle content.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="dreamy-bloom">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf7482.jpg" alt="Dreamy Bloom: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/dreamy-bloom.jpg" alt="Dreamy Bloom applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Dreamy Bloom" id="cmp-dreamy-bloom">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Dreamy Bloom</span>
+  </div>
+  <h3>Dreamy Bloom</h3>
+  <p class="what">Heavy glow, warm and desaturated.</p>
+  <p class="best"><span class="mono">Best for</span>Soft romantic scenes, hazy light, waterside moments.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="night-neon">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x1829.jpg" alt="Night Neon: the shot before the look" loading="lazy" width="507" height="760">
+    <img class="a" src="assets/presets/night-neon.jpg" alt="Night Neon applied" loading="lazy" width="507" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Night Neon" id="cmp-night-neon">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Night Neon</span>
+  </div>
+  <h3>Night Neon</h3>
+  <p class="what">Glow and halation on bright lights, cool and contrasty.</p>
+  <p class="best"><span class="mono">Best for</span>City nights, neon signs, rain-slick streets.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+<article class="look" id="mono-contrast">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0305.jpg" alt="Mono Contrast: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/mono-contrast.jpg" alt="Mono Contrast applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Mono Contrast" id="cmp-mono-contrast">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Mono Contrast</span>
+  </div>
+  <h3>Mono Contrast</h3>
+  <p class="what">Black and white, hard contrast, texture, grain, vignette.</p>
+  <p class="best"><span class="mono">Best for</span>Street, architecture, hard light and shadows.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+    </div>
+  </div>
+</section>
+<section class="group" id="nature">
+  <div class="wrap">
+    <span class="mono label">Nature</span>
+    <h2>Nature looks</h2>
+    <p class="intro">Forest, trail and wilderness: a warm look, a cool look and a neutral one per family.</p>
+    <div class="looks">
+<article class="look" id="pastel-forest">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf7482.jpg" alt="Pastel Forest: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/pastel-forest.jpg" alt="Pastel Forest applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Pastel Forest" id="cmp-pastel-forest">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Pastel Forest</span>
+  </div>
+  <h3>Pastel Forest</h3>
+  <p class="what">Warm peach light over soft, matte forest colour.</p>
+  <p class="best"><span class="mono">Best for</span>Sunny bushwalks, soft daylight under trees.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="mist-forest">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x0712.jpg" alt="Mist Forest: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/mist-forest.jpg" alt="Mist Forest applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Mist Forest" id="cmp-mist-forest">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Mist Forest</span>
+  </div>
+  <h3>Mist Forest</h3>
+  <p class="what">Cool, misty forest colour with quiet greens.</p>
+  <p class="best"><span class="mono">Best for</span>Fog, rainforest, grey mornings in the hills.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+<article class="look" id="golden-trail">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x0712.jpg" alt="Golden Trail: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/golden-trail.jpg" alt="Golden Trail applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Golden Trail" id="cmp-golden-trail">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Golden Trail</span>
+  </div>
+  <h3>Golden Trail</h3>
+  <p class="what">Golden-hour trail colour, deep shadows, olive greens.</p>
+  <p class="best"><span class="mono">Best for</span>Hikes in late light, warm adventure moments.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+<article class="look" id="slate-trail">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf7482.jpg" alt="Slate Trail: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/slate-trail.jpg" alt="Slate Trail applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Slate Trail" id="cmp-slate-trail">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Slate Trail</span>
+  </div>
+  <h3>Slate Trail</h3>
+  <p class="what">Cool slate trail colour, teal shadows, restrained light.</p>
+  <p class="best"><span class="mono">Best for</span>Waterfalls, wet rock, overcast trails.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="amber-wild">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf8173.jpg" alt="Amber Wild: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/amber-wild.jpg" alt="Amber Wild applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Amber Wild" id="cmp-amber-wild">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Amber Wild</span>
+  </div>
+  <h3>Amber Wild</h3>
+  <p class="what">Warm, low-key wilderness colour with amber light.</p>
+  <p class="best"><span class="mono">Best for</span>Bush and outdoor people shots with warm, moody light.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="blue-wild">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0265.jpg" alt="Blue Wild: the shot before the look" loading="lazy" width="507" height="760">
+    <img class="a" src="assets/presets/blue-wild.jpg" alt="Blue Wild applied" loading="lazy" width="507" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Blue Wild" id="cmp-blue-wild">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Blue Wild</span>
+  </div>
+  <h3>Blue Wild</h3>
+  <p class="what">Cool blue-teal wilderness colour with lifted blacks.</p>
+  <p class="best"><span class="mono">Best for</span>Mountains, clouds in valleys, big cool landscapes.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="forest-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0380.jpg" alt="Forest Neutral: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/forest-neutral.jpg" alt="Forest Neutral applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Forest Neutral" id="cmp-forest-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Forest Neutral</span>
+  </div>
+  <h3>Forest Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Forest footage you want natural, or as a base to grade from.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="trail-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0380.jpg" alt="Trail Neutral: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/trail-neutral.jpg" alt="Trail Neutral applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Trail Neutral" id="cmp-trail-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Trail Neutral</span>
+  </div>
+  <h3>Trail Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Parks and trails in plain daylight.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="wild-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x2296.jpg" alt="Wild Neutral: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/wild-neutral.jpg" alt="Wild Neutral applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Wild Neutral" id="cmp-wild-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Wild Neutral</span>
+  </div>
+  <h3>Wild Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Mixed nature footage that should match across a set.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+    </div>
+  </div>
+</section>
+<section class="group" id="streets">
+  <div class="wrap">
+    <span class="mono label">Streets</span>
+    <h2>Streets looks</h2>
+    <p class="intro">City looks for day and night, plus quiet editorial colour for cafés and portraits.</p>
+    <div class="looks">
+<article class="look" id="amber-street">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9717.jpg" alt="Amber Street: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/amber-street.jpg" alt="Amber Street applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Amber Street" id="cmp-amber-street">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Amber Street</span>
+  </div>
+  <h3>Amber Street</h3>
+  <p class="what">Warm amber street colour, deep blacks, restrained saturation.</p>
+  <p class="best"><span class="mono">Best for</span>Street photography in hard, low sun.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="concrete-street">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0381.jpg" alt="Concrete Street: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/concrete-street.jpg" alt="Concrete Street applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Concrete Street" id="cmp-concrete-street">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Concrete Street</span>
+  </div>
+  <h3>Concrete Street</h3>
+  <p class="what">Cool neutral street colour, softer contrast.</p>
+  <p class="best"><span class="mono">Best for</span>Concrete, plazas, flat grey city light.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="sodium-street">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0397.jpg" alt="Sodium Street: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/sodium-street.jpg" alt="Sodium Street applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Sodium Street" id="cmp-sodium-street">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Sodium Street</span>
+  </div>
+  <h3>Sodium Street</h3>
+  <p class="what">Warm city light, cream highlights, olive greens.</p>
+  <p class="best"><span class="mono">Best for</span>Dusk streets and warm-lit city corners.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="steel-street">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0265.jpg" alt="Steel Street: the shot before the look" loading="lazy" width="507" height="760">
+    <img class="a" src="assets/presets/steel-street.jpg" alt="Steel Street applied" loading="lazy" width="507" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Steel Street" id="cmp-steel-street">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Steel Street</span>
+  </div>
+  <h3>Steel Street</h3>
+  <p class="what">Cool steel-teal city colour, quiet and cinematic.</p>
+  <p class="best"><span class="mono">Best for</span>Trains, buses, glass and steel on cloudy days.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="soft-editorial">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0434.jpg" alt="Soft Editorial: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/soft-editorial.jpg" alt="Soft Editorial applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Soft Editorial" id="cmp-soft-editorial">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Soft Editorial</span>
+  </div>
+  <h3>Soft Editorial</h3>
+  <p class="what">Muted editorial colour with a little warmth in skin and wood.</p>
+  <p class="best"><span class="mono">Best for</span>Cafés, interiors, quiet portraits.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="cool-editorial">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9711.jpg" alt="Cool Editorial: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/cool-editorial.jpg" alt="Cool Editorial applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Cool Editorial" id="cmp-cool-editorial">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Cool Editorial</span>
+  </div>
+  <h3>Cool Editorial</h3>
+  <p class="what">Muted, cool-neutral editorial colour.</p>
+  <p class="best"><span class="mono">Best for</span>Clean modern spaces, understated portraits.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="metro-day">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf6714.jpg" alt="Metro Day: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/metro-day.jpg" alt="Metro Day applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Metro Day" id="cmp-metro-day">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Metro Day</span>
+  </div>
+  <h3>Metro Day</h3>
+  <p class="what">Bright, clean cinematic city daylight with warm skin.</p>
+  <p class="best"><span class="mono">Best for</span>Sunny city walks with people in frame.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="metro-night">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x1170.jpg" alt="Metro Night: the shot before the look" loading="lazy" width="507" height="760">
+    <img class="a" src="assets/presets/metro-night.jpg" alt="Metro Night applied" loading="lazy" width="507" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Metro Night" id="cmp-metro-night">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Metro Night</span>
+  </div>
+  <h3>Metro Night</h3>
+  <p class="what">Low-key cinematic night colour with controlled highlights.</p>
+  <p class="best"><span class="mono">Best for</span>Bars, neon and night streets.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+<article class="look" id="street-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0335.jpg" alt="Street Neutral: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/street-neutral.jpg" alt="Street Neutral applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Street Neutral" id="cmp-street-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Street Neutral</span>
+  </div>
+  <h3>Street Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Everyday street scenes kept honest.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="city-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0335.jpg" alt="City Neutral: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/city-neutral.jpg" alt="City Neutral applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: City Neutral" id="cmp-city-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">City Neutral</span>
+  </div>
+  <h3>City Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>City wides and landmarks in daylight.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="editorial-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0434.jpg" alt="Editorial Neutral: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/editorial-neutral.jpg" alt="Editorial Neutral applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Editorial Neutral" id="cmp-editorial-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Editorial Neutral</span>
+  </div>
+  <h3>Editorial Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>People and food indoors without a colour cast.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+<article class="look" id="metro-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x1512.jpg" alt="Metro Neutral: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/metro-neutral.jpg" alt="Metro Neutral applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Metro Neutral" id="cmp-metro-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Metro Neutral</span>
+  </div>
+  <h3>Metro Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Trams, stations and city evenings.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+    </div>
+  </div>
+</section>
+<section class="group" id="travel">
+  <div class="wrap">
+    <span class="mono label">Travel</span>
+    <h2>Travel looks</h2>
+    <p class="intro">Bright holiday colour, golden or cool, with a neutral version of each.</p>
+    <div class="looks">
+<article class="look" id="golden-voyage">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x2296.jpg" alt="Golden Voyage: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/golden-voyage.jpg" alt="Golden Voyage applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Golden Voyage" id="cmp-golden-voyage">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Golden Voyage</span>
+  </div>
+  <h3>Golden Voyage</h3>
+  <p class="what">Bright, warm travel colour with golden highlights.</p>
+  <p class="best"><span class="mono">Best for</span>Harbours and lookouts in late-afternoon sun.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+<article class="look" id="blue-voyage">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf6951.jpg" alt="Blue Voyage: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/blue-voyage.jpg" alt="Blue Voyage applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Blue Voyage" id="cmp-blue-voyage">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Blue Voyage</span>
+  </div>
+  <h3>Blue Voyage</h3>
+  <p class="what">Bright, cool travel colour with clean blue-cyan skies.</p>
+  <p class="best"><span class="mono">Best for</span>Towers, skylines and big blue skies.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="sunlit-escape">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9718.jpg" alt="Sunlit Escape: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/sunlit-escape.jpg" alt="Sunlit Escape applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Sunlit Escape" id="cmp-sunlit-escape">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Sunlit Escape</span>
+  </div>
+  <h3>Sunlit Escape</h3>
+  <p class="what">Clean, sunlit travel colour with natural warm skin.</p>
+  <p class="best"><span class="mono">Best for</span>Beach towns and sunny streets.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="azure-escape">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf6714.jpg" alt="Azure Escape: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/azure-escape.jpg" alt="Azure Escape applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Azure Escape" id="cmp-azure-escape">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Azure Escape</span>
+  </div>
+  <h3>Azure Escape</h3>
+  <p class="what">Clean, cool travel colour with azure skies and water.</p>
+  <p class="best"><span class="mono">Best for</span>Waterfronts, swims and sea views.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="golden-coast">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0270.jpg" alt="Golden Coast: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/golden-coast.jpg" alt="Golden Coast applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Golden Coast" id="cmp-golden-coast">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Golden Coast</span>
+  </div>
+  <h3>Golden Coast</h3>
+  <p class="what">Warm filmic coastal colour with golden light.</p>
+  <p class="best"><span class="mono">Best for</span>Sunsets over water, golden harbour shots.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="teal-coast">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf7482.jpg" alt="Teal Coast: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/teal-coast.jpg" alt="Teal Coast applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Teal Coast" id="cmp-teal-coast">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Teal Coast</span>
+  </div>
+  <h3>Teal Coast</h3>
+  <p class="what">Cool filmic coastal colour with teal water.</p>
+  <p class="best"><span class="mono">Best for</span>Sea, waves and rocky shores.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="warm-wanderer">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9715.jpg" alt="Warm Wanderer: the shot before the look" loading="lazy" width="428" height="760">
+    <img class="a" src="assets/presets/warm-wanderer.jpg" alt="Warm Wanderer applied" loading="lazy" width="428" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Warm Wanderer" id="cmp-warm-wanderer">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Warm Wanderer</span>
+  </div>
+  <h3>Warm Wanderer</h3>
+  <p class="what">Warm travel colour, rich reds and oranges, rolled-off highlights.</p>
+  <p class="best"><span class="mono">Best for</span>Markets, food stalls, colourful crowds.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="clean-wanderer">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0265.jpg" alt="Clean Wanderer: the shot before the look" loading="lazy" width="507" height="760">
+    <img class="a" src="assets/presets/clean-wanderer.jpg" alt="Clean Wanderer applied" loading="lazy" width="507" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Clean Wanderer" id="cmp-clean-wanderer">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Clean Wanderer</span>
+  </div>
+  <h3>Clean Wanderer</h3>
+  <p class="what">Clean, cooler travel colour with cyan-blue skies.</p>
+  <p class="best"><span class="mono">Best for</span>Architecture against the sky.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="bright-journey">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf6714.jpg" alt="Bright Journey: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/bright-journey.jpg" alt="Bright Journey applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Bright Journey" id="cmp-bright-journey">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Bright Journey</span>
+  </div>
+  <h3>Bright Journey</h3>
+  <p class="what">Bright, airy travel colour with fresh greens and clean skies.</p>
+  <p class="best"><span class="mono">Best for</span>Cheerful daytime travel reels.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="moody-journey">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0264.jpg" alt="Moody Journey: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/moody-journey.jpg" alt="Moody Journey applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Moody Journey" id="cmp-moody-journey">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Moody Journey</span>
+  </div>
+  <h3>Moody Journey</h3>
+  <p class="what">Darker, richer travel colour for dusk and overcast light.</p>
+  <p class="best"><span class="mono">Best for</span>Grey days and evenings on the road.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="voyage-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x1512.jpg" alt="Voyage Neutral: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/voyage-neutral.jpg" alt="Voyage Neutral applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Voyage Neutral" id="cmp-voyage-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Voyage Neutral</span>
+  </div>
+  <h3>Voyage Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Landmarks and sightseeing in plain daylight.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+<article class="look" id="escape-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0313.jpg" alt="Escape Neutral: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/escape-neutral.jpg" alt="Escape Neutral applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Escape Neutral" id="cmp-escape-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Escape Neutral</span>
+  </div>
+  <h3>Escape Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Holiday footage that should look like it did.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="coast-neutral">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9715.jpg" alt="Coast Neutral: the shot before the look" loading="lazy" width="428" height="760">
+    <img class="a" src="assets/presets/coast-neutral.jpg" alt="Coast Neutral applied" loading="lazy" width="428" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Coast Neutral" id="cmp-coast-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Coast Neutral</span>
+  </div>
+  <h3>Coast Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Coastal walks and backlit seaside shots.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="wanderer-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-xm5_xm5x2296.jpg" alt="Wanderer Neutral: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/wanderer-neutral.jpg" alt="Wanderer Neutral applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Wanderer Neutral" id="cmp-wanderer-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Wanderer Neutral</span>
+  </div>
+  <h3>Wanderer Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Old buildings and street details.</p>
+  <p class="src mono">X-M5 · JPEG</p>
+</article>
+<article class="look" id="journey-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-log_dscf0380.jpg" alt="Journey Neutral: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/journey-neutral.jpg" alt="Journey Neutral applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Journey Neutral" id="cmp-journey-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Journey Neutral</span>
+  </div>
+  <h3>Journey Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Parks and squares in soft light.</p>
+  <p class="src mono">X-T5 · F-Log2 video</p>
+</article>
+    </div>
+  </div>
+</section>
+<section class="group" id="diary">
+  <div class="wrap">
+    <span class="mono label">Diary</span>
+    <h2>Diary looks</h2>
+    <p class="intro">Personal, filmic everyday colour.</p>
+    <div class="looks">
+<article class="look" id="warm-film-diary">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf9276.jpg" alt="Warm Film Diary: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/warm-film-diary.jpg" alt="Warm Film Diary applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Warm Film Diary" id="cmp-warm-film-diary">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Warm Film Diary</span>
+  </div>
+  <h3>Warm Film Diary</h3>
+  <p class="what">Deep warm film diary: dim mids, cream highlights, grain.</p>
+  <p class="best"><span class="mono">Best for</span>Low-light dinners and intimate evenings.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="soft-film-diary">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9711.jpg" alt="Soft Film Diary: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/soft-film-diary.jpg" alt="Soft Film Diary applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Soft Film Diary" id="cmp-soft-film-diary">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Soft Film Diary</span>
+  </div>
+  <h3>Soft Film Diary</h3>
+  <p class="what">Softer, less warm film diary.</p>
+  <p class="best"><span class="mono">Best for</span>Café visits and gentle daytime moments.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+<article class="look" id="golden-diary">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0264.jpg" alt="Golden Diary: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/golden-diary.jpg" alt="Golden Diary applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Golden Diary" id="cmp-golden-diary">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Golden Diary</span>
+  </div>
+  <h3>Golden Diary</h3>
+  <p class="what">Soft golden cinematic diary colour.</p>
+  <p class="best"><span class="mono">Best for</span>Sunny outdoor moments with people.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="teal-diary">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-raf_dscf0264.jpg" alt="Teal Diary: the shot before the look" loading="lazy" width="760" height="507">
+    <img class="a" src="assets/presets/teal-diary.jpg" alt="Teal Diary applied" loading="lazy" width="760" height="507">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Teal Diary" id="cmp-teal-diary">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Teal Diary</span>
+  </div>
+  <h3>Teal Diary</h3>
+  <p class="what">Cool teal cinematic diary colour.</p>
+  <p class="best"><span class="mono">Best for</span>Rainy days, reflections, cool moods.</p>
+  <p class="src mono">X-T5 · RAW photo</p>
+</article>
+<article class="look" id="film-diary-neutral">
+  <div class="cmp" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-709_dscf9276.jpg" alt="Film Diary Neutral: the shot before the look" loading="lazy" width="760" height="428">
+    <img class="a" src="assets/presets/film-diary-neutral.jpg" alt="Film Diary Neutral applied" loading="lazy" width="760" height="428">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Film Diary Neutral" id="cmp-film-diary-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Film Diary Neutral</span>
+  </div>
+  <h3>Film Diary Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>A film-diary feel without the warm cast.</p>
+  <p class="src mono">X-T5 · Rec.709 video</p>
+</article>
+<article class="look" id="diary-neutral">
+  <div class="cmp tall" style="--pos:50%">
+    <img class="b" src="assets/presets/camera-alog_img_9712.jpg" alt="Diary Neutral: the shot before the look" loading="lazy" width="428" height="760">
+    <img class="a" src="assets/presets/diary-neutral.jpg" alt="Diary Neutral applied" loading="lazy" width="428" height="760">
+    <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: Diary Neutral" id="cmp-diary-neutral">
+    <span class="bar"><span></span></span><span class="tag l">Before</span><span class="tag r">Diary Neutral</span>
+  </div>
+  <h3>Diary Neutral</h3>
+  <p class="what">True-to-scene colour with white balance held neutral: the family’s tone without its tint.</p>
+  <p class="best"><span class="mono">Best for</span>Food and everyday shots kept true.</p>
+  <p class="src mono">iPhone · Apple Log video</p>
+</article>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p><strong style="color:var(--paper);font-weight:500">SPUD</strong></p>
+      <p>Inspired by <a href="https://github.com/CyberTimon/RapidRAW">RapidRAW</a>. Built with FFmpeg and vid.stab.</p>
+      <p>Released under the <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL-3.0</a>.</p>
+    </div>
+    <div class="endorse"><img src="assets/endorsement.svg" alt="by Pink Potato Design"></div>
+  </div>
+</footer>
+
+<script>document.querySelectorAll(".cmp input").forEach(function(i){function u(){i.parentNode.style.setProperty("--pos",i.value+"%")}i.addEventListener("input",u);u()});</script>
+</body>
+</html>
