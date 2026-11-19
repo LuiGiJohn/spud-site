@@ -1,0 +1,355 @@
+// Home hero: an unedited camera frame graded live in WebGL2, one SPUD node at a time.
+// This is a small site-only shader written for the page, not SPUD's own pipeline: each node
+// applies a simplified version of what that node does in the app.
+
+const $ = (s, r = document) => r.querySelector(s);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const NODES = [
+  { name: 'Input Space', desc: 'Tell SPUD what the camera recorded: Rec.709, Apple Log, F-Log2 or RAW. This is the file as it came off the card.', space: true },
+  { name: 'Base', desc: 'Exposure and contrast. Get the brightness right before anything else.' },
+  { name: 'Balance', desc: 'White balance: temperature and tint, so neutral things read neutral.' },
+  { name: 'Curves', desc: 'Shape the tone: a gentle S, lifted blacks, softer highlights.' },
+  { name: 'Color', desc: 'Vibrance and saturation, plus an 8-band HSL mixer for each colour.' },
+  { name: 'Skin', desc: 'No faces in this frame, so Skin has nothing to protect. On people it keeps skin natural under a strong look.' },
+  { name: 'Detail', desc: 'Sharpness and clarity bring out texture without halos.' },
+  { name: 'Look', desc: 'Colour wheels and .cube LUTs set the mood. Built-in looks land here.' },
+  { name: 'Effects', desc: 'Glow and vignette pull the eye into the frame.' },
+  { name: 'Output Space', desc: 'Film texture as the last step: halation and grain, then out to the screen.', space: true },
+];
+
+// Per-frame settings for each node (tuned by eye for these frames).
+// p0: exposure (stops), contrast, temperature, tint | p1: curve S, black lift, vibrance, saturation
+// p2: detail, clarity, split-tone amount, fade | p3: vignette, glow, halation, grain | sh/hi: split-tone colours
+const FRAMES = [
+  { id: 'byodoin', caption: 'Byodo-in, Uji · Fujifilm X-M5',
+    p0: [0.05, 1.12, 0.18, 0.0], p1: [0.4, 0.02, 0.3, 1.04], p2: [0.7, 0.45, 0.55, 0.03], p3: [0.28, 0.12, 0.3, 0.05],
+    sh: [-0.03, 0.02, 0.05], hi: [0.05, 0.02, -0.035] },
+  { id: 'harbour-sunset', caption: 'Sydney Harbour · Fujifilm X-T5',
+    p0: [-0.12, 1.14, 0.3, 0.05], p1: [0.45, 0.025, 0.25, 1.06], p2: [0.5, 0.3, 0.6, 0.035], p3: [0.32, 0.22, 0.55, 0.06],
+    sh: [-0.02, 0.0, 0.05], hi: [0.06, 0.025, -0.04] },
+  { id: 'harbour-bridge', caption: 'Sydney Harbour Bridge · Fujifilm X-T5',
+    p0: [-0.05, 1.12, 0.08, 0.0], p1: [0.4, 0.02, 0.22, 0.98], p2: [0.7, 0.4, 0.55, 0.03], p3: [0.26, 0.1, 0.3, 0.05],
+    sh: [-0.04, 0.025, 0.04], hi: [0.05, 0.02, -0.03] },
+  { id: 'blue-mountains', caption: 'Blue Mountains · Fujifilm X-T5',
+    p0: [0.12, 1.2, -0.12, 0.0], p1: [0.5, 0.03, 0.3, 0.92], p2: [0.6, 0.55, 0.5, 0.05], p3: [0.3, 0.06, 0.15, 0.07],
+    sh: [-0.03, 0.03, 0.04], hi: [0.035, 0.02, -0.01] },
+  { id: 'baguio-dusk', caption: 'Baguio · Fujifilm X-T5',
+    p0: [-0.08, 1.1, 0.05, 0.12], p1: [0.35, 0.03, 0.2, 1.05], p2: [0.4, 0.3, 0.5, 0.03], p3: [0.3, 0.25, 0.6, 0.06],
+    sh: [-0.02, 0.0, 0.06], hi: [0.06, 0.015, -0.02] },
+];
+const size = () => (innerWidth < 700 ? 900 : 1800);
+const src = (f, w = size()) => `assets/plates/${f.id}-${w}.jpg`;
+
+/* ---------------- shader ---------------- */
+const VS = `#version 300 es
+in vec2 p; out vec2 v_uv;
+void main(){ v_uv = p*0.5+0.5; v_uv.y = 1.0-v_uv.y; gl_Position = vec4(p,0.,1.); }`;
+
+const FS = `#version 300 es
+precision highp float;
+uniform sampler2D u_a, u_b; uniform float u_mix;
+uniform float u_amt[10];
+uniform vec4 u_p0, u_p1, u_p2, u_p3; uniform vec3 u_sh, u_hi;
+uniform float u_seed, u_px;
+in vec2 v_uv; out vec4 o;
+
+vec3 toLin(vec3 c){ return mix(c/12.92, pow((c+0.055)/1.055, vec3(2.4)), step(0.04045, c)); }
+vec3 toSrgb(vec3 c){ c = max(c, 0.0); return mix(c*12.92, 1.055*pow(c, vec3(1.0/2.4))-0.055, step(0.0031308, c)); }
+float luma(vec3 c){ return dot(c, vec3(0.2126, 0.7152, 0.0722)); }
+vec3 blurAt(sampler2D t, vec2 uv, float lod){
+  vec2 d = exp2(lod) / vec2(textureSize(t, 0)) * 1.5;
+  vec3 s = textureLod(t, uv, lod).rgb * 0.36;
+  s += textureLod(t, uv + vec2( d.x, 0.0), lod).rgb * 0.16;
+  s += textureLod(t, uv + vec2(-d.x, 0.0), lod).rgb * 0.16;
+  s += textureLod(t, uv + vec2(0.0,  d.y), lod).rgb * 0.16;
+  s += textureLod(t, uv + vec2(0.0, -d.y), lod).rgb * 0.16;
+  return s;
+}
+float hash(vec2 p){ p = fract(p*vec2(443.897, 441.423)); p += dot(p, p.yx+19.19); return fract((p.x+p.y)*p.x); }
+
+vec3 grade(sampler2D t, vec2 uv){
+  vec3 src = texture(t, uv).rgb;
+  vec3 c = toLin(src);
+  float a;
+  // Base: exposure, then contrast around mid grey in log
+  a = u_amt[1];
+  c *= exp2(u_p0.x * a);
+  c = 0.18 * exp2(log2(max(c, 1e-5) / 0.18) * mix(1.0, u_p0.y, a));
+  // Balance: temperature and tint as channel gains that keep brightness
+  a = u_amt[2];
+  vec3 wb = vec3(1.0 + 0.12*u_p0.z, 1.0 - 0.07*u_p0.w, 1.0 - 0.12*u_p0.z); wb /= luma(wb);
+  c *= mix(vec3(1.0), wb, a);
+  vec3 d = clamp(toSrgb(c), 0.0, 1.2);
+  // Curves: S-curve, lifted blacks, rolled-off highlights
+  a = u_amt[3];
+  vec3 x = clamp(d, 0.0, 1.0);
+  vec3 cv = mix(x, x*x*(3.0-2.0*x), u_p1.x);
+  cv = u_p1.y + cv * (1.0 - u_p1.y - 0.02);
+  d = mix(d, cv, a);
+  // Color: saturation plus vibrance that favours muted colours
+  a = u_amt[4];
+  float l = luma(d);
+  float sat = max(max(d.r, d.g), d.b) - min(min(d.r, d.g), d.b);
+  d = mix(d, l + (d - l) * (u_p1.w + u_p1.z * (1.0 - sat)), a);
+  // Skin (u_amt[5]): these frames have no people, so nothing changes.
+  // Detail: fine sharpening and midtone clarity from the source's blur differences
+  a = u_amt[6];
+  float ls = luma(src);
+  float b1 = luma(blurAt(t, uv, 1.0)), b4 = luma(blurAt(t, uv, 4.0));
+  float mid = 1.0 - abs(2.0*l - 1.0);
+  d += a * (u_p2.x * (ls - b1) * 1.2 + u_p2.y * (ls - b4) * mid * 0.8);
+  // Look: split-tone shadows and highlights, then a slight fade
+  a = u_amt[7];
+  l = luma(clamp(d, 0.0, 1.0));
+  vec3 tone = u_sh * (1.0 - smoothstep(0.0, 0.55, l)) + u_hi * smoothstep(0.4, 1.0, l);
+  d += a * tone * u_p2.z * 2.0;
+  d = mix(d, u_p2.w + d * (1.0 - u_p2.w * 1.5), a);
+  // Effects: glow on bright areas, vignette
+  a = u_amt[8];
+  vec3 bl = blurAt(t, uv, 5.0);
+  float hl = smoothstep(0.55, 1.0, luma(bl));
+  d = 1.0 - (1.0 - clamp(d, 0.0, 1.0)) * (1.0 - a * u_p3.y * hl * bl);
+  vec2 q = uv - 0.5; q.x *= 1.5;
+  float v = smoothstep(0.95, 0.25, length(q));
+  d *= mix(1.0, mix(1.0 - u_p3.x, 1.0, v), a);
+  // Output Space: red-orange halation around highlights
+  a = u_amt[9];
+  vec3 bh = blurAt(t, uv, 4.5);
+  float h = smoothstep(0.62, 1.0, luma(bh));
+  d += a * u_p3.z * h * vec3(1.0, 0.32, 0.1) * 0.55;
+  return d;
+}
+
+void main(){
+  vec2 uv = v_uv;
+  float m = u_mix;
+  // frame change: a short lens-bulge as the new frame comes in
+  float w = sin(3.14159 * m);
+  vec2 q = uv - 0.5;
+  vec2 uvw = 0.5 + q * (1.0 - 0.06 * w * (1.0 - dot(q, q) * 2.0));
+  vec3 col = m < 1.0 ? mix(grade(u_a, uvw), grade(u_b, uvw), smoothstep(0.0, 1.0, m)) : grade(u_b, uv);
+  // Output Space: film grain, strongest in the midtones
+  float l = luma(clamp(col, 0.0, 1.0));
+  float n = hash(floor(gl_FragCoord.xy / u_px) + u_seed) - 0.5;
+  col += u_amt[9] * u_p3.w * n * (0.35 + 0.65 * (1.0 - abs(2.0*l - 1.0)));
+  o = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`;
+
+/* ---------------- setup ---------------- */
+const plate = $('[data-plate]');
+const canvas = $('canvas', plate);
+const fallback = $('[data-fallback]');
+const gl = canvas.getContext('webgl2', { antialias: false, premultipliedAlpha: false, preserveDrawingBuffer: false });
+let prog, U = {}, texA, texB;
+
+function compile(type, s) {
+  const sh = gl.createShader(type); gl.shaderSource(sh, s); gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+  return sh;
+}
+function initGL() {
+  prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  for (const n of ['u_a', 'u_b', 'u_mix', 'u_amt', 'u_p0', 'u_p1', 'u_p2', 'u_p3', 'u_sh', 'u_hi', 'u_seed', 'u_px']) U[n] = gl.getUniformLocation(prog, n);
+  gl.uniform1i(U.u_a, 0); gl.uniform1i(U.u_b, 1);
+  texA = gl.createTexture(); texB = gl.createTexture();
+}
+function upload(tex, img) {
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+}
+const cache = new Map();
+function loadImg(url) {
+  if (!cache.has(url)) cache.set(url, new Promise((res, rej) => { const i = new Image(); i.decoding = 'async'; i.onload = () => res(i); i.onerror = rej; i.src = url; }));
+  return cache.get(url);
+}
+
+/* ---------------- state ---------------- */
+let frame = 0, node = reduce ? 9 : 0, before = false, mix = 1, mixT0 = 0;
+const amt = new Float32Array(10).fill(0); amt[0] = 1;
+if (reduce) amt.fill(1);
+let glOK = false, visible = true, raf = 0, last = 0, fpsN = 0, fpsT = 0;
+const fpsEl = $('[data-fps]');
+
+function target(i) { return i === 0 ? 1 : before ? 0 : i <= node ? 1 : 0; }
+function settled() { for (let i = 0; i < 10; i++) if (Math.abs(amt[i] - target(i)) > 0.001) return false; return mix >= 1; }
+const grainLive = () => !reduce && amt[9] > 0.01;
+
+function draw(t) {
+  const f = FRAMES[frame];
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.uniform1f(U.u_mix, mix);
+  gl.uniform1fv(U.u_amt, amt);
+  gl.uniform4fv(U.u_p0, f.p0); gl.uniform4fv(U.u_p1, f.p1); gl.uniform4fv(U.u_p2, f.p2); gl.uniform4fv(U.u_p3, f.p3);
+  gl.uniform3fv(U.u_sh, f.sh); gl.uniform3fv(U.u_hi, f.hi);
+  gl.uniform1f(U.u_seed, reduce ? 0 : Math.floor(t / 42) % 997);
+  gl.uniform1f(U.u_px, Math.max(1, Math.round(canvas.width / canvas.clientWidth * 1.1)));
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+function tick(t) {
+  raf = 0;
+  const dt = Math.min(0.05, (t - (last || t)) / 1000); last = t;
+  const k = before ? 1 : 1 - Math.exp(-dt * 7);
+  for (let i = 0; i < 10; i++) amt[i] += (target(i) - amt[i]) * (reduce ? 1 : k);
+  if (mix < 1) mix = reduce ? 1 : Math.min(1, (t - mixT0) / 650);
+  draw(t);
+  fpsN++; if (t - fpsT > 1000) { if (fpsEl) fpsEl.textContent = String(Math.round(fpsN * 1000 / (t - fpsT))); fpsN = 0; fpsT = t; }
+  if (visible && !document.hidden && (!settled() || grainLive())) raf = requestAnimationFrame(tick);
+  else { last = 0; if (fpsEl && settled()) fpsEl.textContent = 'idle'; }
+}
+function kick() { if (glOK && !raf) { fpsT = performance.now(); fpsN = 0; raf = requestAnimationFrame(tick); } if (!glOK) applyFallback(); }
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const w = Math.min(1800, Math.round(canvas.clientWidth * dpr)), h = Math.round(w * 2 / 3);
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; if (glOK) { last = 0; tick(performance.now()); } }
+}
+
+/* fallback without WebGL2: CSS filters stand in for the nodes */
+function applyFallback() {
+  const n = before ? 0 : node;
+  fallback.src = src(FRAMES[frame], 900);
+  fallback.style.filter = n === 0 ? 'none' : `contrast(${1 + Math.min(n, 3) * 0.05}) saturate(${1 + (n >= 4 ? 0.12 : 0)}) sepia(${n >= 7 ? 0.08 : 0})`;
+}
+
+/* ---------------- UI ---------------- */
+const strip = $('[data-strip]'), countEl = $('[data-count]'), nameEl = $('[data-name]'), descEl = $('[data-desc]');
+strip.innerHTML = NODES.map((n, i) => `<button type="button" role="tab" class="${n.space ? 'space' : ''}" data-i="${i}" aria-label="Grade up to ${n.name}"><i>${String(i + 1).padStart(2, '0')}</i>${n.name}</button>`).join('');
+const btns = [...strip.children];
+
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/#';
+let scrambleId = 0;
+function scramble(el, text) {
+  if (reduce) { el.textContent = text; return; }
+  const id = ++scrambleId, t0 = performance.now(), dur = 380;
+  const step = (t) => {
+    if (id !== scrambleId) return;
+    const p = Math.min(1, (t - t0) / dur), keep = Math.floor(p * text.length);
+    el.textContent = text.slice(0, keep) + [...text.slice(keep)].map((c) => (c === ' ' ? ' ' : GLYPHS[(Math.random() * GLYPHS.length) | 0])).join('');
+    if (p < 1) requestAnimationFrame(step); else el.textContent = text;
+  };
+  requestAnimationFrame(step);
+}
+
+function setNode(i, user = true) {
+  if (user) stopPlay();
+  node = Math.max(0, Math.min(9, i));
+  btns.forEach((b, j) => { b.classList.toggle('on', j <= node); b.classList.toggle('cur', j === node); b.setAttribute('aria-selected', j === node); });
+  const b = btns[node]; strip.scrollTo({ left: b.offsetLeft - strip.clientWidth / 2 + b.clientWidth / 2, behavior: reduce ? 'auto' : 'smooth' });
+  countEl.textContent = `Node ${String(node + 1).padStart(2, '0')} / 10`;
+  scramble(nameEl, NODES[node].name);
+  descEl.textContent = NODES[node].desc;
+  kick();
+}
+strip.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setNode(+b.dataset.i); });
+
+/* frames */
+const tiles = $('[data-tiles]'), framesEl = $('[data-frames]');
+const thumb = (f, i) => `<button type="button" data-f="${i}" aria-label="Show ${f.caption}"><img src="${src(f, 900)}" alt="" loading="lazy" decoding="async"></button>`;
+tiles.innerHTML = FRAMES.map(thumb).join('').replaceAll('<button type="button"', '<button type="button" class="tile"');
+framesEl.innerHTML = FRAMES.map(thumb).join('');
+const pick = (e) => { const b = e.target.closest('[data-f]'); if (b) setFrame(+b.dataset.f); };
+tiles.addEventListener('click', pick); framesEl.addEventListener('click', pick);
+
+async function setFrame(i, user = true) {
+  i = (i + FRAMES.length) % FRAMES.length;
+  const f = FRAMES[i];
+  document.querySelectorAll('[data-f]').forEach((b) => b.setAttribute('aria-current', +b.dataset.f === i));
+  $('[data-caption]').textContent = f.caption;
+  $('[data-frameno]').textContent = `Frame ${i + 1} / ${FRAMES.length}`;
+  const first = !texB || !glOK;
+  frame = i;
+  if (!glOK) { applyFallback(); if (user) play(); return; }
+  const img = await loadImg(src(f));
+  if (frame !== i) return;
+  if (!first) { [texA, texB] = [texB, texA]; gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texA); }
+  gl.activeTexture(gl.TEXTURE1); upload(texB, img);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, first ? texB : texA);
+  mix = first ? 1 : 0; mixT0 = performance.now();
+  if (user && !reduce) play(); else kick();
+}
+
+/* play the grade: Input Space to Output Space */
+let playTimer = 0;
+function stopPlay() { clearTimeout(playTimer); playTimer = 0; }
+function play() {
+  stopPlay();
+  if (reduce) { setNode(9, false); return; }
+  setNode(0, false);
+  const next = () => { if (node < 9) { setNode(node + 1, false); playTimer = setTimeout(next, node === 9 ? 0 : 780); } };
+  playTimer = setTimeout(next, 700);
+}
+$('[data-play]').addEventListener('click', play);
+
+/* before / after: hold the button or the \ key */
+const baBtn = $('[data-before]');
+const setBefore = (on) => { before = on; baBtn.setAttribute('aria-pressed', on); kick(); };
+baBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); setBefore(true); });
+['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => baBtn.addEventListener(ev, () => before && setBefore(false)));
+baBtn.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setBefore(true); } });
+baBtn.addEventListener('keyup', () => setBefore(false));
+
+const typing = () => /INPUT|TEXTAREA/.test(document.activeElement?.tagName || '') || document.querySelector('.palette.open');
+document.addEventListener('keydown', (e) => {
+  if (typing() || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === '\\' && !e.repeat) setBefore(true);
+  const inHero = scrollY < innerHeight * 0.8;
+  if (!inHero) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); setNode(node + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); setNode(node - 1); }
+});
+document.addEventListener('keyup', (e) => { if (e.key === '\\') setBefore(false); });
+
+/* swipe on the plate steps nodes */
+let sx = null, sy = null;
+plate.addEventListener('pointerdown', (e) => { if (e.target === baBtn) return; sx = e.clientX; sy = e.clientY; });
+plate.addEventListener('pointerup', (e) => {
+  if (sx === null) return;
+  const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+  if (Math.abs(dx) > 36 && Math.abs(dx) > Math.abs(dy)) setNode(node + (dx < 0 ? 1 : -1));
+});
+
+/* tiles drift a little with the mouse */
+if (!reduce && matchMedia('(pointer:fine)').matches) {
+  addEventListener('mousemove', (e) => {
+    const x = e.clientX / innerWidth - 0.5, y = e.clientY / innerHeight - 0.5;
+    tiles.querySelectorAll('.tile').forEach((t, i) => { const d = 6 + (i % 3) * 4; t.style.setProperty('--px', `${-x * d}px`); t.style.setProperty('--py', `${-y * d}px`); });
+  }, { passive: true });
+}
+
+/* palette entries */
+window.dispatchEvent(new CustomEvent('palette:add', { detail: [
+  { group: 'Grade', label: 'Play the grade', hint: 'Input → Output', run: () => { scrollTo({ top: 0 }); play(); } },
+  ...NODES.map((n, i) => ({ group: 'Grade', label: `Grade up to ${n.name}`, hint: `node ${String(i + 1).padStart(2, '0')}`, run: () => { scrollTo({ top: 0 }); setNode(i); } })),
+  ...FRAMES.map((f, i) => ({ group: 'Frames', label: f.caption, hint: `frame ${i + 1}`, run: () => { scrollTo({ top: 0 }); setFrame(i); } })),
+] }));
+
+/* ---------------- boot ---------------- */
+try { if (!gl) throw new Error('no webgl2'); initGL(); glOK = true; }
+catch (err) { plate.classList.add('nogl'); $('[data-badge]').textContent = 'Preview'; const g = $('[data-gl]'); if (g) g.textContent = 'none'; }
+if (glOK) {
+  new ResizeObserver(resize).observe(canvas);
+  canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); glOK = false; plate.classList.add('nogl'); applyFallback(); });
+  new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible) kick(); }).observe(plate);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
+}
+resize();
+setNode(node, false);
+setFrame(0, false).then(() => { if (!reduce) play(); });

@@ -1,0 +1,66 @@
+# Checks the site on every push and pull request.
+# Deploying from this workflow is off until the Pages source is switched to "GitHub Actions"
+# (Settings > Pages) and the repository variable PAGES_SOURCE is set to "actions".
+# Until then, Pages keeps publishing from the main branch as before.
+name: Site
+
+on:
+  push:
+    branches: [main, v2]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate HTML
+        run: |
+          cat > /tmp/htmlvalidate.json <<'EOF'
+          {"extends":["html-validate:recommended"],
+           "rules":{"no-inline-style":"off","long-title":"off","no-raw-characters":"off","prefer-native-element":"off",
+                    "no-trailing-whitespace":"off","attribute-boolean-style":"off","void-style":"off"}}
+          EOF
+          npx --yes html-validate@9 -c /tmp/htmlvalidate.json index.html presets.html 404.html
+
+      - name: Check links (local files only)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress --include-fragments --root-dir "${{ github.workspace }}" index.html presets.html
+          fail: true
+
+      - name: Size budget
+        run: |
+          total=$(du -sk --exclude=.git . | cut -f1)
+          plates=$(du -sk assets/plates | cut -f1)
+          echo "Site: ${total} KB, hero plates: ${plates} KB"
+          test "$total" -lt 25000 || { echo "Site is over 25 MB"; exit 1; }
+          test "$plates" -lt 4000 || { echo "Hero plates are over 4 MB"; exit 1; }
+
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_SOURCE == 'actions'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
