@@ -60,12 +60,13 @@
   .tile:hover,.tile:focus-visible{opacity:1}
   .tile img{width:100%;height:100%;object-fit:cover}
   .tile[aria-current="true"]{opacity:.18;pointer-events:none}
-  .tile:nth-child(1){left:-150px;top:22%;--rx:12deg;--ry:-22deg;--rz:-8deg}
-  .tile:nth-child(2){left:-140px;top:52%;--rx:-10deg;--ry:-18deg;--rz:7deg}
-  .tile:nth-child(3){left:-160px;bottom:10%;--rx:-6deg;--ry:-20deg;--rz:-4deg}
-  .tile:nth-child(4){right:-150px;top:24%;--rx:10deg;--ry:22deg;--rz:9deg}
-  .tile:nth-child(5){right:-140px;top:52%;--rx:-10deg;--ry:18deg;--rz:-7deg}
-  .tile:nth-child(6){right:-160px;bottom:10%;--rx:-6deg;--ry:20deg;--rz:4deg}
+  .tile:nth-child(1){left:-150px;top:12%;--rx:12deg;--ry:-22deg;--rz:-8deg}
+  .tile:nth-child(2){left:-140px;top:34%;--rx:-10deg;--ry:-18deg;--rz:7deg}
+  .tile:nth-child(3){left:-160px;top:56%;--rx:8deg;--ry:-20deg;--rz:-5deg}
+  .tile:nth-child(4){left:-145px;top:78%;--rx:-6deg;--ry:-20deg;--rz:4deg}
+  .tile:nth-child(5){right:-150px;top:24%;--rx:10deg;--ry:22deg;--rz:9deg}
+  .tile:nth-child(6){right:-140px;top:52%;--rx:-10deg;--ry:18deg;--rz:-7deg}
+  .tile:nth-child(7){right:-160px;bottom:10%;--rx:-6deg;--ry:20deg;--rz:4deg}
 }
 
 @media (max-width:1100px){

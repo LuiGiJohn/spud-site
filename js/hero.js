@@ -19,31 +19,34 @@ const NODES = [
   { name: 'Output Space', desc: 'Film texture as the last step: halation and grain, then out to the screen.', space: true },
 ];
 
-// Each frame wears a different built-in look, picked for its scene, light and time of day, and
-// every look group is used: Cinematic, Nature, Streets, Travel, Diary. The numbers translate each
-// look's settings in SPUD into this page's simplified nodes.
+// One frame per colour of the rainbow, plus one in monochrome. Each wears the built-in look that
+// suits its scene, light and time of day, and every look group is used: Cinematic, Nature, Streets,
+// Travel, Diary. The numbers translate each look's settings in SPUD into this page's simplified nodes.
 // p0: exposure (stops), contrast, temperature, tint | p1: curve S, black lift, vibrance, saturation
 // p2: detail, clarity, split-tone amount, fade | p3: vignette, glow, halation, grain | sh/hi: split-tone colours
 // skin: how much the Skin node holds faces back from the look (0 when there are no people)
 const FRAMES = [
-  { id: 'nishiki', caption: 'Nishiki Market, Kyoto · X-M5', look: 'Night Neon', group: 'Cinematic',
-    p0: [-0.08, 1.12, -0.02, 0.0], p1: [0.3, 0.02, 0.3, 1.0], p2: [0.4, 0.5, 0.6, 0.0], p3: [0.14, 0.35, 0.4, 0.05],
-    sh: [-0.03, 0.0, 0.04], hi: [0.03, 0.01, -0.02], skin: 0 },
   { id: 'portrait', caption: 'Sydney · X-T5', look: 'Portrait Film', group: 'Cinematic',
     p0: [0.0, 0.94, 0.12, 0.03], p1: [0.1, 0.035, 0.06, 0.95], p2: [0.2, 0.15, 0.7, 0.03], p3: [0.1, 0.06, 0.1, 0.05],
     sh: [-0.02, 0.005, 0.02], hi: [0.03, 0.012, -0.02], skin: 1 },
-  { id: 'sydney-beach', caption: 'Sydney beach · X-T5', look: 'Teal Coast', group: 'Travel',
-    p0: [-0.1, 1.18, -0.07, 0.0], p1: [0.3, 0.015, 0.1, 1.0], p2: [0.35, 0.25, 0.8, 0.0], p3: [0.18, 0.05, 0.14, 0.05],
-    sh: [-0.03, 0.005, 0.025], hi: [0.035, 0.015, -0.025], skin: 0 },
   { id: 'fushimi-inari', caption: 'Fushimi Inari, Kyoto · X-M5', look: 'Golden Diary', group: 'Diary',
     p0: [-0.1, 1.12, 0.15, 0.05], p1: [0.22, 0.035, -0.06, 0.98], p2: [0.3, 0.2, 0.85, 0.03], p3: [0.12, 0.1, 0.12, 0.05],
     sh: [0.02, 0.01, -0.015], hi: [0.03, 0.015, -0.025], skin: 0 },
+  { id: 'sydney-train', caption: 'Sydney train · X-T5', look: 'Clean Wanderer', group: 'Travel',
+    p0: [-0.08, 1.14, 0.07, 0.02], p1: [0.2, 0.0, 0.22, 0.89], p2: [0.3, 0.08, 0.4, 0.0], p3: [0.08, 0.02, 0.0, 0.03],
+    sh: [0.01, 0.005, -0.005], hi: [0.012, 0.006, -0.01], skin: 0 },
   { id: 'blue-mountains-walk', caption: 'Blue Mountains · X-T5', look: 'Mist Forest', group: 'Nature',
     p0: [0.1, 1.22, -0.12, 0.036], p1: [0.28, 0.02, 0.18, 1.0], p2: [0.3, -0.04, 1.0, 0.02], p3: [0.08, 0.04, 0.06, 0.04],
     sh: [-0.045, 0.015, 0.035], hi: [-0.01, 0.0, 0.015], skin: 0 },
-  { id: 'baguio-dusk', caption: 'Baguio · X-T5', look: 'Sodium Street', group: 'Streets',
-    p0: [-0.05, 0.92, 0.2, 0.066], p1: [0.12, 0.03, 0.0, 0.81], p2: [0.3, 0.15, 0.9, 0.03], p3: [0.1, 0.06, 0.1, 0.06],
-    sh: [-0.035, 0.015, 0.015], hi: [0.045, 0.02, -0.04], skin: 0 },
+  { id: 'sydney-beach', caption: 'Sydney beach · X-T5', look: 'Teal Coast', group: 'Travel',
+    p0: [-0.1, 1.18, -0.07, 0.0], p1: [0.3, 0.015, 0.1, 1.0], p2: [0.35, 0.25, 0.8, 0.0], p3: [0.18, 0.05, 0.14, 0.05],
+    sh: [-0.03, 0.005, 0.025], hi: [0.035, 0.015, -0.025], skin: 0 },
+  { id: 'darling-harbour', caption: 'Darling Harbour, blue hour · X-T5', look: 'Metro Night', group: 'Streets',
+    p0: [-0.1, 1.12, 0.1, 0.03], p1: [0.22, 0.0, -0.05, 0.96], p2: [0.35, 0.15, 1.0, 0.02], p3: [0.16, 0.2, 0.25, 0.06],
+    sh: [-0.02, 0.01, 0.01], hi: [0.04, 0.02, -0.03], skin: 0 },
+  { id: 'misty-gums', caption: 'Blue Mountains mist · X-T5', look: 'Mono Contrast', group: 'Cinematic',
+    p0: [0.0, 1.28, 0.0, 0.0], p1: [0.3, 0.0, 0.0, 0.0], p2: [0.35, 0.26, 0.0, 0.0], p3: [0.3, 0.0, 0.0, 0.1],
+    sh: [0.0, 0.0, 0.0], hi: [0.0, 0.0, 0.0], skin: 0 },
 ];
 const size = () => (innerWidth < 700 ? 900 : 1800);
 const src = (f, w = size()) => `assets/plates/${f.id}-${w}.jpg`;
