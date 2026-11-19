@@ -195,7 +195,11 @@ let frame = 0, node = reduce ? 9 : 0, before = false, mix = 1, mixT0 = 0;
 let wipe = 2, wipeT0 = 0, wlo = -1, whi = -1; const WIPE_MS = 900;
 const amt = new Float32Array(10).fill(0); amt[0] = 1;
 if (reduce) amt.fill(1);
-let glOK = false, visible = true, raf = 0, last = 0, fpsN = 0, fpsT = 0;
+let glOK = false, visible = true, raf = 0, last = 0, fpsN = 0, fpsT = 0, lastSeed = -1, dirty = true;
+// grain gets a new pattern every 42 ms (24 fps); once the grade settles, frames in between are skipped
+// unless something asked for a redraw (dirty, set by kick)
+const GRAIN_MS = 42;
+const seedAt = (t) => (reduce ? 0 : Math.floor(t / GRAIN_MS) % 997);
 const fpsEl = $('[data-fps]');
 
 function target(i) { return i === 0 ? 1 : before ? 0 : i <= node ? 1 : 0; }
@@ -210,7 +214,8 @@ function draw(t) {
   gl.uniform4fv(U.u_p0, f.p0); gl.uniform4fv(U.u_p1, f.p1); gl.uniform4fv(U.u_p2, f.p2); gl.uniform4fv(U.u_p3, f.p3);
   gl.uniform3fv(U.u_sh, f.sh); gl.uniform3fv(U.u_hi, f.hi);
   gl.uniform1f(U.u_wipe, before ? 2 : wipe); gl.uniform1i(U.u_wlo, wlo); gl.uniform1i(U.u_whi, whi);
-  gl.uniform1f(U.u_seed, reduce ? 0 : Math.floor(t / 42) % 997);
+  lastSeed = seedAt(t);
+  gl.uniform1f(U.u_seed, lastSeed);
   gl.uniform1f(U.u_px, Math.max(1, Math.round(canvas.width / canvas.clientWidth * 1.1)));
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
@@ -221,12 +226,12 @@ function tick(t) {
   for (let i = 0; i < 10; i++) amt[i] = (wipe < 1 && i > wlo && i <= whi && !before) ? 1 : amt[i] + (target(i) - amt[i]) * (reduce ? 1 : k);
   if (mix < 1) mix = reduce ? 1 : Math.min(1, (t - mixT0) / 650);
   if (wipe < 1) { const p = Math.min(1, (t - wipeT0) / WIPE_MS); wipe = p < 1 ? 1 - Math.pow(1 - p, 3) : 2; }
-  draw(t);
-  fpsN++; if (t - fpsT > 1000) { if (fpsEl) fpsEl.textContent = String(Math.round(fpsN * 1000 / (t - fpsT))); fpsN = 0; fpsT = t; }
+  if (dirty || !settled() || seedAt(t) !== lastSeed) { dirty = false; draw(t); fpsN++; }
+  if (t - fpsT > 1000) { if (fpsEl) fpsEl.textContent = String(Math.round(fpsN * 1000 / (t - fpsT))); fpsN = 0; fpsT = t; }
   if (visible && !document.hidden && (!settled() || grainLive())) raf = requestAnimationFrame(tick);
   else { last = 0; if (fpsEl && settled()) fpsEl.textContent = 'idle'; }
 }
-function kick() { if (glOK && !raf) { fpsT = performance.now(); fpsN = 0; raf = requestAnimationFrame(tick); } if (!glOK) applyFallback(); }
+function kick() { dirty = true; if (glOK && !raf) { fpsT = performance.now(); fpsN = 0; raf = requestAnimationFrame(tick); } if (!glOK) applyFallback(); }
 
 function resize() {
   const dpr = Math.min(devicePixelRatio || 1, 2);
