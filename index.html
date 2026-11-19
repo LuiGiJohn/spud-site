@@ -29,7 +29,7 @@
 </head>
 <body>
 
-<div class="hud" aria-label="Release information">
+<div class="hud" role="group" aria-label="Release information">
   <span>SPUD:: <b data-version>latest</b></span>
   <span class="opt">Released:: <b data-released>—</b></span>
   <span class="opt">macOS:: <b>Apple Silicon</b></span>
@@ -61,18 +61,18 @@
 
 <main>
 <header class="stage" id="top">
-  <div class="tiles" data-tiles aria-label="Other frames"></div>
+  <div class="tiles" role="group" data-tiles aria-label="Other frames"></div>
 
   <div class="plate-wrap">
     <div class="plate" data-plate>
       <canvas aria-label="A camera frame being graded live, node by node" role="img"></canvas>
-      <img alt="" data-fallback>
+      <img src="assets/plates/byodoin-900.jpg" alt="Byodo-in temple in Uji reflected in its pond" data-fallback>
       <span class="badge" data-badge>Live · WebGL2</span>
       <button class="ba" type="button" data-before aria-pressed="false" title="Hold to see the frame before the grade (\)">Before</button>
     </div>
     <div class="caption"><span data-caption>—</span><span data-frameno>Frame 1 / 5</span></div>
     <div class="strip" role="tablist" aria-label="Nodes" data-strip></div>
-    <div class="frames" data-frames aria-label="Frames"></div>
+    <div class="frames" role="group" data-frames aria-label="Frames"></div>
   </div>
 
   <div class="side">

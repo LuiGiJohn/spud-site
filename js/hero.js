@@ -23,20 +23,20 @@ const NODES = [
 // p2: detail, clarity, split-tone amount, fade | p3: vignette, glow, halation, grain | sh/hi: split-tone colours
 const FRAMES = [
   { id: 'byodoin', caption: 'Byodo-in, Uji · Fujifilm X-M5',
-    p0: [0.05, 1.12, 0.18, 0.0], p1: [0.4, 0.02, 0.3, 1.04], p2: [0.7, 0.45, 0.55, 0.03], p3: [0.28, 0.12, 0.3, 0.05],
-    sh: [-0.03, 0.02, 0.05], hi: [0.05, 0.02, -0.035] },
+    p0: [-0.2, 1.28, 0.3, 0.06], p1: [0.75, 0.05, 0.55, 1.1], p2: [1.0, 0.9, 1.0, 0.05], p3: [0.5, 0.3, 0.6, 0.08],
+    sh: [-0.04, 0.03, 0.07], hi: [0.05, 0.02, -0.04] },
   { id: 'harbour-sunset', caption: 'Sydney Harbour · Fujifilm X-T5',
-    p0: [-0.12, 1.14, 0.3, 0.05], p1: [0.45, 0.025, 0.25, 1.06], p2: [0.5, 0.3, 0.6, 0.035], p3: [0.32, 0.22, 0.55, 0.06],
-    sh: [-0.02, 0.0, 0.05], hi: [0.06, 0.025, -0.04] },
+    p0: [-0.25, 1.3, 0.55, 0.15], p1: [0.8, 0.05, 0.5, 1.12], p2: [0.8, 0.7, 1.0, 0.05], p3: [0.5, 0.45, 0.9, 0.09],
+    sh: [-0.03, 0.01, 0.07], hi: [0.08, 0.03, -0.05] },
   { id: 'harbour-bridge', caption: 'Sydney Harbour Bridge · Fujifilm X-T5',
-    p0: [-0.05, 1.12, 0.08, 0.0], p1: [0.4, 0.02, 0.22, 0.98], p2: [0.7, 0.4, 0.55, 0.03], p3: [0.26, 0.1, 0.3, 0.05],
-    sh: [-0.04, 0.025, 0.04], hi: [0.05, 0.02, -0.03] },
+    p0: [-0.2, 1.3, -0.3, 0.05], p1: [0.75, 0.05, 0.45, 0.95], p2: [1.0, 0.9, 1.0, 0.05], p3: [0.5, 0.25, 0.6, 0.08],
+    sh: [-0.06, 0.04, 0.06], hi: [0.07, 0.03, -0.04] },
   { id: 'blue-mountains', caption: 'Blue Mountains · Fujifilm X-T5',
-    p0: [0.12, 1.2, -0.12, 0.0], p1: [0.5, 0.03, 0.3, 0.92], p2: [0.6, 0.55, 0.5, 0.05], p3: [0.3, 0.06, 0.15, 0.07],
-    sh: [-0.03, 0.03, 0.04], hi: [0.035, 0.02, -0.01] },
+    p0: [0.15, 1.4, -0.35, -0.08], p1: [0.85, 0.06, 0.55, 0.85], p2: [0.9, 1.0, 1.0, 0.07], p3: [0.5, 0.15, 0.3, 0.1],
+    sh: [-0.05, 0.04, 0.06], hi: [0.05, 0.03, -0.02] },
   { id: 'baguio-dusk', caption: 'Baguio · Fujifilm X-T5',
-    p0: [-0.08, 1.1, 0.05, 0.12], p1: [0.35, 0.03, 0.2, 1.05], p2: [0.4, 0.3, 0.5, 0.03], p3: [0.3, 0.25, 0.6, 0.06],
-    sh: [-0.02, 0.0, 0.06], hi: [0.06, 0.015, -0.02] },
+    p0: [-0.25, 1.25, 0.3, 0.3], p1: [0.7, 0.06, 0.45, 1.12], p2: [0.7, 0.6, 1.0, 0.05], p3: [0.5, 0.45, 1.0, 0.09],
+    sh: [-0.03, 0.0, 0.09], hi: [0.08, 0.02, -0.03] },
 ];
 const size = () => (innerWidth < 700 ? 900 : 1800);
 const src = (f, w = size()) => `assets/plates/${f.id}-${w}.jpg`;
@@ -51,7 +51,8 @@ precision highp float;
 uniform sampler2D u_a, u_b; uniform float u_mix;
 uniform float u_amt[10];
 uniform vec4 u_p0, u_p1, u_p2, u_p3; uniform vec3 u_sh, u_hi;
-uniform float u_seed, u_px;
+uniform float u_seed, u_px, u_wipe; uniform int u_wlo, u_whi;
+float g_mask = 1.0;
 in vec2 v_uv; out vec4 o;
 
 vec3 toLin(vec3 c){ return mix(c/12.92, pow((c+0.055)/1.055, vec3(2.4)), step(0.04045, c)); }
@@ -68,55 +69,56 @@ vec3 blurAt(sampler2D t, vec2 uv, float lod){
 }
 float hash(vec2 p){ p = fract(p*vec2(443.897, 441.423)); p += dot(p, p.yx+19.19); return fract((p.x+p.y)*p.x); }
 
+float A(int i){ return u_amt[i] * ((i > u_wlo && i <= u_whi) ? g_mask : 1.0); }
 vec3 grade(sampler2D t, vec2 uv){
   vec3 src = texture(t, uv).rgb;
   vec3 c = toLin(src);
   float a;
   // Base: exposure, then contrast around mid grey in log
-  a = u_amt[1];
+  a = A(1);
   c *= exp2(u_p0.x * a);
   c = 0.18 * exp2(log2(max(c, 1e-5) / 0.18) * mix(1.0, u_p0.y, a));
   // Balance: temperature and tint as channel gains that keep brightness
-  a = u_amt[2];
-  vec3 wb = vec3(1.0 + 0.12*u_p0.z, 1.0 - 0.07*u_p0.w, 1.0 - 0.12*u_p0.z); wb /= luma(wb);
+  a = A(2);
+  vec3 wb = vec3(1.0 + 0.2*u_p0.z, 1.0 - 0.15*u_p0.w, 1.0 - 0.2*u_p0.z); wb /= luma(wb);
   c *= mix(vec3(1.0), wb, a);
   vec3 d = clamp(toSrgb(c), 0.0, 1.2);
   // Curves: S-curve, lifted blacks, rolled-off highlights
-  a = u_amt[3];
+  a = A(3);
   vec3 x = clamp(d, 0.0, 1.0);
   vec3 cv = mix(x, x*x*(3.0-2.0*x), u_p1.x);
   cv = u_p1.y + cv * (1.0 - u_p1.y - 0.02);
   d = mix(d, cv, a);
   // Color: saturation plus vibrance that favours muted colours
-  a = u_amt[4];
+  a = A(4);
   float l = luma(d);
   float sat = max(max(d.r, d.g), d.b) - min(min(d.r, d.g), d.b);
   d = mix(d, l + (d - l) * (u_p1.w + u_p1.z * (1.0 - sat)), a);
   // Skin (u_amt[5]): these frames have no people, so nothing changes.
   // Detail: fine sharpening and midtone clarity from the source's blur differences
-  a = u_amt[6];
+  a = A(6);
   float ls = luma(src);
   float b1 = luma(blurAt(t, uv, 1.0)), b4 = luma(blurAt(t, uv, 4.0));
   float mid = 1.0 - abs(2.0*l - 1.0);
   d += a * (u_p2.x * (ls - b1) * 1.2 + u_p2.y * (ls - b4) * mid * 0.8);
   // Look: split-tone shadows and highlights, then a slight fade
-  a = u_amt[7];
+  a = A(7);
   l = luma(clamp(d, 0.0, 1.0));
   vec3 tone = u_sh * (1.0 - smoothstep(0.0, 0.55, l)) + u_hi * smoothstep(0.4, 1.0, l);
   d += a * tone * u_p2.z * 2.0;
   d = mix(d, u_p2.w + d * (1.0 - u_p2.w * 1.5), a);
   // Effects: glow on bright areas, vignette
-  a = u_amt[8];
+  a = A(8);
   vec3 bl = blurAt(t, uv, 5.0);
-  float hl = smoothstep(0.55, 1.0, luma(bl));
+  float hl = smoothstep(0.68, 1.0, luma(bl));
   d = 1.0 - (1.0 - clamp(d, 0.0, 1.0)) * (1.0 - a * u_p3.y * hl * bl);
   vec2 q = uv - 0.5; q.x *= 1.5;
   float v = smoothstep(0.95, 0.25, length(q));
   d *= mix(1.0, mix(1.0 - u_p3.x, 1.0, v), a);
   // Output Space: red-orange halation around highlights
-  a = u_amt[9];
+  a = A(9);
   vec3 bh = blurAt(t, uv, 4.5);
-  float h = smoothstep(0.62, 1.0, luma(bh));
+  float h = smoothstep(0.8, 1.0, luma(bh));
   d += a * u_p3.z * h * vec3(1.0, 0.32, 0.1) * 0.55;
   return d;
 }
@@ -124,6 +126,8 @@ vec3 grade(sampler2D t, vec2 uv){
 void main(){
   vec2 uv = v_uv;
   float m = u_mix;
+  float edge = 1.5 / float(textureSize(u_b, 0).x);
+  g_mask = 1.0 - smoothstep(u_wipe - edge, u_wipe + edge, uv.x);
   // frame change: a short lens-bulge as the new frame comes in
   float w = sin(3.14159 * m);
   vec2 q = uv - 0.5;
@@ -132,7 +136,12 @@ void main(){
   // Output Space: film grain, strongest in the midtones
   float l = luma(clamp(col, 0.0, 1.0));
   float n = hash(floor(gl_FragCoord.xy / u_px) + u_seed) - 0.5;
-  col += u_amt[9] * u_p3.w * n * (0.35 + 0.65 * (1.0 - abs(2.0*l - 1.0)));
+  col += A(9) * u_p3.w * n * (0.35 + 0.65 * (1.0 - abs(2.0*l - 1.0)));
+  // the wipe line
+  if (u_wipe > 0.0 && u_wipe < 1.0) {
+    float d = abs(uv.x - u_wipe) * float(textureSize(u_b, 0).x) / max(u_px, 1.0);
+    col = mix(col, vec3(0.91, 0.54, 0.62), (1.0 - smoothstep(1.0, 2.5, d)) * 0.95);
+  }
   o = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
 
@@ -161,7 +170,7 @@ function initGL() {
   const loc = gl.getAttribLocation(prog, 'p');
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  for (const n of ['u_a', 'u_b', 'u_mix', 'u_amt', 'u_p0', 'u_p1', 'u_p2', 'u_p3', 'u_sh', 'u_hi', 'u_seed', 'u_px']) U[n] = gl.getUniformLocation(prog, n);
+  for (const n of ['u_a', 'u_b', 'u_mix', 'u_amt', 'u_p0', 'u_p1', 'u_p2', 'u_p3', 'u_sh', 'u_hi', 'u_seed', 'u_px', 'u_wipe', 'u_wlo', 'u_whi']) U[n] = gl.getUniformLocation(prog, n);
   gl.uniform1i(U.u_a, 0); gl.uniform1i(U.u_b, 1);
   texA = gl.createTexture(); texB = gl.createTexture();
 }
@@ -183,13 +192,14 @@ function loadImg(url) {
 
 /* ---------------- state ---------------- */
 let frame = 0, node = reduce ? 9 : 0, before = false, mix = 1, mixT0 = 0;
+let wipe = 2, wipeT0 = 0, wlo = -1, whi = -1; const WIPE_MS = 900;
 const amt = new Float32Array(10).fill(0); amt[0] = 1;
 if (reduce) amt.fill(1);
 let glOK = false, visible = true, raf = 0, last = 0, fpsN = 0, fpsT = 0;
 const fpsEl = $('[data-fps]');
 
 function target(i) { return i === 0 ? 1 : before ? 0 : i <= node ? 1 : 0; }
-function settled() { for (let i = 0; i < 10; i++) if (Math.abs(amt[i] - target(i)) > 0.001) return false; return mix >= 1; }
+function settled() { for (let i = 0; i < 10; i++) if (Math.abs(amt[i] - target(i)) > 0.001) return false; return mix >= 1 && wipe >= 1; }
 const grainLive = () => !reduce && amt[9] > 0.01;
 
 function draw(t) {
@@ -199,6 +209,7 @@ function draw(t) {
   gl.uniform1fv(U.u_amt, amt);
   gl.uniform4fv(U.u_p0, f.p0); gl.uniform4fv(U.u_p1, f.p1); gl.uniform4fv(U.u_p2, f.p2); gl.uniform4fv(U.u_p3, f.p3);
   gl.uniform3fv(U.u_sh, f.sh); gl.uniform3fv(U.u_hi, f.hi);
+  gl.uniform1f(U.u_wipe, before ? 2 : wipe); gl.uniform1i(U.u_wlo, wlo); gl.uniform1i(U.u_whi, whi);
   gl.uniform1f(U.u_seed, reduce ? 0 : Math.floor(t / 42) % 997);
   gl.uniform1f(U.u_px, Math.max(1, Math.round(canvas.width / canvas.clientWidth * 1.1)));
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -207,8 +218,9 @@ function tick(t) {
   raf = 0;
   const dt = Math.min(0.05, (t - (last || t)) / 1000); last = t;
   const k = before ? 1 : 1 - Math.exp(-dt * 7);
-  for (let i = 0; i < 10; i++) amt[i] += (target(i) - amt[i]) * (reduce ? 1 : k);
+  for (let i = 0; i < 10; i++) amt[i] = (wipe < 1 && i > wlo && i <= whi && !before) ? 1 : amt[i] + (target(i) - amt[i]) * (reduce ? 1 : k);
   if (mix < 1) mix = reduce ? 1 : Math.min(1, (t - mixT0) / 650);
+  if (wipe < 1) { const p = Math.min(1, (t - wipeT0) / WIPE_MS); wipe = p < 1 ? 1 - Math.pow(1 - p, 3) : 2; }
   draw(t);
   fpsN++; if (t - fpsT > 1000) { if (fpsEl) fpsEl.textContent = String(Math.round(fpsN * 1000 / (t - fpsT))); fpsN = 0; fpsT = t; }
   if (visible && !document.hidden && (!settled() || grainLive())) raf = requestAnimationFrame(tick);
@@ -250,7 +262,13 @@ function scramble(el, text) {
 
 function setNode(i, user = true) {
   if (user) stopPlay();
+  const prev = node;
   node = Math.max(0, Math.min(9, i));
+  if (!reduce && node > prev && glOK) {
+    wlo = wipe < 1 ? Math.min(wlo, prev) : prev; whi = node;
+    for (let j = wlo + 1; j <= whi; j++) amt[j] = 1;
+    wipe = 0; wipeT0 = performance.now();
+  } else if (node < prev) { wipe = 2; }
   btns.forEach((b, j) => { b.classList.toggle('on', j <= node); b.classList.toggle('cur', j === node); b.setAttribute('aria-selected', j === node); });
   const b = btns[node]; strip.scrollTo({ left: b.offsetLeft - strip.clientWidth / 2 + b.clientWidth / 2, behavior: reduce ? 'auto' : 'smooth' });
   countEl.textContent = `Node ${String(node + 1).padStart(2, '0')} / 10`;
@@ -293,8 +311,8 @@ function play() {
   stopPlay();
   if (reduce) { setNode(9, false); return; }
   setNode(0, false);
-  const next = () => { if (node < 9) { setNode(node + 1, false); playTimer = setTimeout(next, node === 9 ? 0 : 780); } };
-  playTimer = setTimeout(next, 700);
+  const next = () => { if (node < 9) { setNode(node + 1, false); playTimer = setTimeout(next, node === 9 ? 0 : 1250); } };
+  playTimer = setTimeout(next, 900);
 }
 $('[data-play]').addEventListener('click', play);
 

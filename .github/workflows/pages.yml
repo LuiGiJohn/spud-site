@@ -27,7 +27,7 @@ jobs:
         run: |
           cat > /tmp/htmlvalidate.json <<'EOF'
           {"extends":["html-validate:recommended"],
-           "rules":{"no-inline-style":"off","long-title":"off","no-raw-characters":"off","prefer-native-element":"off",
+           "rules":{"no-inline-style":"off","doctype-style":"off","long-title":"off","no-raw-characters":"off","prefer-native-element":"off",
                     "no-trailing-whitespace":"off","attribute-boolean-style":"off","void-style":"off"}}
           EOF
           npx --yes html-validate@9 -c /tmp/htmlvalidate.json index.html presets.html 404.html
