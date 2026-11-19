@@ -38,7 +38,7 @@ const FRAMES = [
   { id: 'fushimi-inari', caption: 'Fushimi Inari, Kyoto · X-M5', look: 'Golden Diary', group: 'Diary',
     p0: [-0.1, 1.12, 0.15, 0.05], p1: [0.22, 0.035, -0.06, 0.98], p2: [0.3, 0.2, 0.85, 0.03], p3: [0.12, 0.1, 0.12, 0.05],
     sh: [0.02, 0.01, -0.015], hi: [0.03, 0.015, -0.025], skin: 0 },
-  { id: 'mountain-mist', caption: 'Blue Mountains · X-T5', look: 'Mist Forest', group: 'Nature',
+  { id: 'blue-mountains-walk', caption: 'Blue Mountains · X-T5', look: 'Mist Forest', group: 'Nature',
     p0: [0.1, 1.22, -0.12, 0.036], p1: [0.28, 0.02, 0.18, 1.0], p2: [0.3, -0.04, 1.0, 0.02], p3: [0.08, 0.04, 0.06, 0.04],
     sh: [-0.045, 0.015, 0.035], hi: [-0.01, 0.0, 0.015], skin: 0 },
   { id: 'baguio-dusk', caption: 'Baguio · X-T5', look: 'Sodium Street', group: 'Streets',
