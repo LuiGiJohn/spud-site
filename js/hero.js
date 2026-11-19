@@ -11,28 +11,39 @@ const NODES = [
   { name: 'Balance', desc: 'White balance: temperature and tint, so neutral things read neutral.' },
   { name: 'Curves', desc: 'Shape the tone: a gentle S, lifted blacks, softer highlights.' },
   { name: 'Color', desc: 'Vibrance and saturation, plus an 8-band HSL mixer for each colour.' },
-  { name: 'Skin', desc: 'No faces in this frame, so Skin has nothing to protect. On people it keeps skin natural under a strong look.' },
+  { name: 'Skin', desc: 'No faces in this frame, so Skin has nothing to protect. On people it keeps skin natural under a strong look.',
+    descFace: 'Finds skin tones and keeps them natural: the look still lands on the frame, but the face stays true.' },
   { name: 'Detail', desc: 'Sharpness and clarity bring out texture without halos.' },
   { name: 'Look', desc: 'Colour wheels and .cube LUTs set the mood. Built-in looks land here.' },
   { name: 'Effects', desc: 'Glow and vignette pull the eye into the frame.' },
   { name: 'Output Space', desc: 'Film texture as the last step: halation and grain, then out to the screen.', space: true },
 ];
 
-// Every frame wears one built-in look, Cine Halation (Cinematic group): mild contrast, saturation -10,
-// highlights held back, slightly warm, teal shadows and warm highlights, light halation and grain.
-// Only exposure and white balance change per frame, so the five read as one set.
+// Each frame wears a different built-in look, picked for its scene, light and time of day, and
+// every look group is used: Cinematic, Nature, Streets, Travel, Diary. The numbers translate each
+// look's settings in SPUD into this page's simplified nodes.
 // p0: exposure (stops), contrast, temperature, tint | p1: curve S, black lift, vibrance, saturation
 // p2: detail, clarity, split-tone amount, fade | p3: vignette, glow, halation, grain | sh/hi: split-tone colours
-const LOOK = { p1: [0.28, 0.025, 0.14, 0.93], p2: [0.45, 0.3, 0.5, 0.02], p3: [0.12, 0.12, 0.22, 0.05],
-  sh: [-0.035, 0.012, 0.03], hi: [0.025, 0.01, -0.016] };
-const frameOf = (id, caption, exposure, contrast, temperature, tint) =>
-  ({ id, caption, p0: [exposure, contrast, temperature, tint], ...LOOK });
+// skin: how much the Skin node holds faces back from the look (0 when there are no people)
 const FRAMES = [
-  frameOf('byodoin', 'Byodo-in, Uji · Fujifilm X-M5', -0.1, 1.1, 0.04, 0.0),
-  frameOf('harbour-sunset', 'Sydney Harbour · Fujifilm X-T5', -0.1, 1.1, 0.02, 0.02),
-  frameOf('harbour-bridge', 'Sydney Harbour Bridge · Fujifilm X-T5', -0.05, 1.1, 0.08, 0.0),
-  frameOf('blue-mountains', 'Blue Mountains · Fujifilm X-T5', 0.08, 1.16, 0.06, 0.0),
-  frameOf('baguio-dusk', 'Baguio · Fujifilm X-T5', -0.05, 1.08, 0.03, 0.03),
+  { id: 'nishiki', caption: 'Nishiki Market, Kyoto · X-M5', look: 'Night Neon', group: 'Cinematic',
+    p0: [-0.08, 1.12, -0.02, 0.0], p1: [0.3, 0.02, 0.3, 1.0], p2: [0.4, 0.5, 0.6, 0.0], p3: [0.14, 0.35, 0.4, 0.05],
+    sh: [-0.03, 0.0, 0.04], hi: [0.03, 0.01, -0.02], skin: 0 },
+  { id: 'portrait', caption: 'Sydney · X-T5', look: 'Portrait Film', group: 'Cinematic',
+    p0: [0.0, 0.94, 0.12, 0.03], p1: [0.1, 0.035, 0.06, 0.95], p2: [0.2, 0.15, 0.7, 0.03], p3: [0.1, 0.06, 0.1, 0.05],
+    sh: [-0.02, 0.005, 0.02], hi: [0.03, 0.012, -0.02], skin: 1 },
+  { id: 'sydney-beach', caption: 'Sydney beach · X-T5', look: 'Teal Coast', group: 'Travel',
+    p0: [-0.1, 1.18, -0.07, 0.0], p1: [0.3, 0.015, 0.1, 1.0], p2: [0.35, 0.25, 0.8, 0.0], p3: [0.18, 0.05, 0.14, 0.05],
+    sh: [-0.03, 0.005, 0.025], hi: [0.035, 0.015, -0.025], skin: 0 },
+  { id: 'fushimi-inari', caption: 'Fushimi Inari, Kyoto · X-M5', look: 'Golden Diary', group: 'Diary',
+    p0: [-0.1, 1.12, 0.15, 0.05], p1: [0.22, 0.035, -0.06, 0.98], p2: [0.3, 0.2, 0.85, 0.03], p3: [0.12, 0.1, 0.12, 0.05],
+    sh: [0.02, 0.01, -0.015], hi: [0.03, 0.015, -0.025], skin: 0 },
+  { id: 'mountain-mist', caption: 'Blue Mountains · X-T5', look: 'Mist Forest', group: 'Nature',
+    p0: [0.1, 1.22, -0.12, 0.036], p1: [0.28, 0.02, 0.18, 1.0], p2: [0.3, -0.04, 1.0, 0.02], p3: [0.08, 0.04, 0.06, 0.04],
+    sh: [-0.045, 0.015, 0.035], hi: [-0.01, 0.0, 0.015], skin: 0 },
+  { id: 'baguio-dusk', caption: 'Baguio · X-T5', look: 'Sodium Street', group: 'Streets',
+    p0: [-0.05, 0.92, 0.2, 0.066], p1: [0.12, 0.03, 0.0, 0.81], p2: [0.3, 0.15, 0.9, 0.03], p3: [0.1, 0.06, 0.1, 0.06],
+    sh: [-0.035, 0.015, 0.015], hi: [0.045, 0.02, -0.04], skin: 0 },
 ];
 const size = () => (innerWidth < 700 ? 900 : 1800);
 const src = (f, w = size()) => `assets/plates/${f.id}-${w}.jpg`;
@@ -46,7 +57,7 @@ const FS = `#version 300 es
 precision highp float;
 uniform sampler2D u_a, u_b; uniform float u_mix;
 uniform float u_amt[10];
-uniform vec4 u_p0, u_p1, u_p2, u_p3; uniform vec3 u_sh, u_hi;
+uniform vec4 u_p0, u_p1, u_p2, u_p3; uniform vec3 u_sh, u_hi; uniform float u_skin;
 uniform float u_seed, u_px, u_wipe; uniform int u_wlo, u_whi;
 float g_mask = 1.0;
 in vec2 v_uv; out vec4 o;
@@ -90,7 +101,16 @@ vec3 grade(sampler2D t, vec2 uv){
   float l = luma(d);
   float sat = max(max(d.r, d.g), d.b) - min(min(d.r, d.g), d.b);
   d = mix(d, l + (d - l) * (u_p1.w + u_p1.z * (1.0 - sat)), a);
-  // Skin (u_amt[5]): these frames have no people, so nothing changes.
+  // Skin: find skin-coloured pixels (warm hue, moderate saturation) and remember them as they are now,
+  // so the Look and Effects nodes below are partly held back there. Frames without people skip it.
+  float sh = 0.0;
+  if (u_skin > 0.0) {
+    vec3 k = clamp(d, 0.0, 1.0);
+    float ks = max(k.r, max(k.g, k.b)) - min(k.b, min(k.r, k.g));
+    sh = step(k.b, k.g) * step(k.g, k.r) * smoothstep(0.08, 0.2, ks) * (1.0 - smoothstep(0.55, 0.75, ks / max(k.r, 1e-3)))
+       * smoothstep(0.12, 0.25, k.r) * u_skin;
+  }
+  vec3 skinRef = d;
   // Detail: fine sharpening and midtone clarity from the source's blur differences
   a = A(6);
   float ls = luma(src);
@@ -111,6 +131,7 @@ vec3 grade(sampler2D t, vec2 uv){
   vec2 q = uv - 0.5; q.x *= 1.5;
   float v = smoothstep(0.95, 0.25, length(q));
   d *= mix(1.0, mix(1.0 - u_p3.x, 1.0, v), a);
+  d = mix(d, skinRef + (d - skinRef) * 0.35, A(5) * sh);
   // Output Space: red-orange halation around highlights
   a = A(9);
   vec3 bh = blurAt(t, uv, 4.5);
@@ -166,7 +187,7 @@ function initGL() {
   const loc = gl.getAttribLocation(prog, 'p');
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  for (const n of ['u_a', 'u_b', 'u_mix', 'u_amt', 'u_p0', 'u_p1', 'u_p2', 'u_p3', 'u_sh', 'u_hi', 'u_seed', 'u_px', 'u_wipe', 'u_wlo', 'u_whi']) U[n] = gl.getUniformLocation(prog, n);
+  for (const n of ['u_a', 'u_b', 'u_mix', 'u_amt', 'u_p0', 'u_p1', 'u_p2', 'u_p3', 'u_sh', 'u_hi', 'u_skin', 'u_seed', 'u_px', 'u_wipe', 'u_wlo', 'u_whi']) U[n] = gl.getUniformLocation(prog, n);
   gl.uniform1i(U.u_a, 0); gl.uniform1i(U.u_b, 1);
   texA = gl.createTexture(); texB = gl.createTexture();
 }
@@ -208,7 +229,7 @@ function draw(t) {
   gl.uniform1f(U.u_mix, mix);
   gl.uniform1fv(U.u_amt, amt);
   gl.uniform4fv(U.u_p0, f.p0); gl.uniform4fv(U.u_p1, f.p1); gl.uniform4fv(U.u_p2, f.p2); gl.uniform4fv(U.u_p3, f.p3);
-  gl.uniform3fv(U.u_sh, f.sh); gl.uniform3fv(U.u_hi, f.hi);
+  gl.uniform3fv(U.u_sh, f.sh); gl.uniform3fv(U.u_hi, f.hi); gl.uniform1f(U.u_skin, f.skin);
   gl.uniform1f(U.u_wipe, before ? 2 : wipe); gl.uniform1i(U.u_wlo, wlo); gl.uniform1i(U.u_whi, whi);
   lastSeed = seedAt(t);
   gl.uniform1f(U.u_seed, lastSeed);
@@ -274,9 +295,10 @@ function setNode(i, user = true) {
   const b = btns[node]; strip.scrollTo({ left: b.offsetLeft - strip.clientWidth / 2 + b.clientWidth / 2, behavior: reduce ? 'auto' : 'smooth' });
   countEl.textContent = `Node ${String(node + 1).padStart(2, '0')} / 10`;
   scramble(nameEl, NODES[node].name);
-  descEl.textContent = NODES[node].desc;
+  showDesc();
   kick();
 }
+function showDesc() { const n = NODES[node]; descEl.textContent = n.descFace && FRAMES[frame].skin ? n.descFace : n.desc; }
 strip.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setNode(+b.dataset.i); });
 
 /* frames */
@@ -291,10 +313,10 @@ async function setFrame(i, user = true) {
   i = (i + FRAMES.length) % FRAMES.length;
   const f = FRAMES[i];
   document.querySelectorAll('[data-f]').forEach((b) => b.setAttribute('aria-current', +b.dataset.f === i));
-  $('[data-caption]').textContent = f.caption;
+  $('[data-caption]').textContent = `${f.caption} · ${f.look} (${f.group})`;
   $('[data-frameno]').textContent = `Frame ${i + 1} / ${FRAMES.length}`;
   const first = !texB || !glOK;
-  frame = i;
+  frame = i; showDesc();
   if (!glOK) { applyFallback(); if (user) play(); return; }
   const img = await loadImg(src(f));
   if (frame !== i) return;
