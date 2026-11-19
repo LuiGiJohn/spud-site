@@ -18,25 +18,21 @@ const NODES = [
   { name: 'Output Space', desc: 'Film texture as the last step: halation and grain, then out to the screen.', space: true },
 ];
 
-// Per-frame settings for each node (tuned by eye for these frames).
+// Every frame wears one built-in look, Cine Halation (Cinematic group): mild contrast, saturation -10,
+// highlights held back, slightly warm, teal shadows and warm highlights, light halation and grain.
+// Only exposure and white balance change per frame, so the five read as one set.
 // p0: exposure (stops), contrast, temperature, tint | p1: curve S, black lift, vibrance, saturation
 // p2: detail, clarity, split-tone amount, fade | p3: vignette, glow, halation, grain | sh/hi: split-tone colours
+const LOOK = { p1: [0.28, 0.025, 0.14, 0.93], p2: [0.45, 0.3, 0.5, 0.02], p3: [0.12, 0.12, 0.22, 0.05],
+  sh: [-0.035, 0.012, 0.03], hi: [0.025, 0.01, -0.016] };
+const frameOf = (id, caption, exposure, contrast, temperature, tint) =>
+  ({ id, caption, p0: [exposure, contrast, temperature, tint], ...LOOK });
 const FRAMES = [
-  { id: 'byodoin', caption: 'Byodo-in, Uji · Fujifilm X-M5',
-    p0: [-0.2, 1.28, 0.3, 0.06], p1: [0.75, 0.05, 0.55, 1.1], p2: [1.0, 0.9, 1.0, 0.05], p3: [0.5, 0.3, 0.6, 0.08],
-    sh: [-0.04, 0.03, 0.07], hi: [0.05, 0.02, -0.04] },
-  { id: 'harbour-sunset', caption: 'Sydney Harbour · Fujifilm X-T5',
-    p0: [-0.25, 1.3, 0.55, 0.15], p1: [0.8, 0.05, 0.5, 1.12], p2: [0.8, 0.7, 1.0, 0.05], p3: [0.5, 0.45, 0.9, 0.09],
-    sh: [-0.03, 0.01, 0.07], hi: [0.08, 0.03, -0.05] },
-  { id: 'harbour-bridge', caption: 'Sydney Harbour Bridge · Fujifilm X-T5',
-    p0: [-0.2, 1.3, -0.3, 0.05], p1: [0.75, 0.05, 0.45, 0.95], p2: [1.0, 0.9, 1.0, 0.05], p3: [0.5, 0.25, 0.6, 0.08],
-    sh: [-0.06, 0.04, 0.06], hi: [0.07, 0.03, -0.04] },
-  { id: 'blue-mountains', caption: 'Blue Mountains · Fujifilm X-T5',
-    p0: [0.15, 1.4, -0.35, -0.08], p1: [0.85, 0.06, 0.55, 0.85], p2: [0.9, 1.0, 1.0, 0.07], p3: [0.5, 0.15, 0.3, 0.1],
-    sh: [-0.05, 0.04, 0.06], hi: [0.05, 0.03, -0.02] },
-  { id: 'baguio-dusk', caption: 'Baguio · Fujifilm X-T5',
-    p0: [-0.25, 1.25, 0.3, 0.3], p1: [0.7, 0.06, 0.45, 1.12], p2: [0.7, 0.6, 1.0, 0.05], p3: [0.5, 0.45, 1.0, 0.09],
-    sh: [-0.03, 0.0, 0.09], hi: [0.08, 0.02, -0.03] },
+  frameOf('byodoin', 'Byodo-in, Uji · Fujifilm X-M5', -0.1, 1.1, 0.04, 0.0),
+  frameOf('harbour-sunset', 'Sydney Harbour · Fujifilm X-T5', -0.1, 1.1, 0.02, 0.02),
+  frameOf('harbour-bridge', 'Sydney Harbour Bridge · Fujifilm X-T5', -0.05, 1.1, 0.08, 0.0),
+  frameOf('blue-mountains', 'Blue Mountains · Fujifilm X-T5', 0.08, 1.16, 0.06, 0.0),
+  frameOf('baguio-dusk', 'Baguio · Fujifilm X-T5', -0.05, 1.08, 0.03, 0.03),
 ];
 const size = () => (innerWidth < 700 ? 900 : 1800);
 const src = (f, w = size()) => `assets/plates/${f.id}-${w}.jpg`;
@@ -87,7 +83,7 @@ vec3 grade(sampler2D t, vec2 uv){
   a = A(3);
   vec3 x = clamp(d, 0.0, 1.0);
   vec3 cv = mix(x, x*x*(3.0-2.0*x), u_p1.x);
-  cv = u_p1.y + cv * (1.0 - u_p1.y - 0.02);
+  cv = u_p1.y + cv * (1.0 - u_p1.y - 0.05);
   d = mix(d, cv, a);
   // Color: saturation plus vibrance that favours muted colours
   a = A(4);
