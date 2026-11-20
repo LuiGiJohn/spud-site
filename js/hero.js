@@ -6,20 +6,21 @@ const $ = (s, r = document) => r.querySelector(s);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const NODES = [
-  { name: 'Input Space', desc: 'Tell SPUD what the camera recorded: Rec.709, Apple Log, F-Log2 or RAW. This is the file as it came off the card.', space: true },
+  { name: 'Input Space', desc: 'Tell SPUD what the camera recorded: Rec.709, Apple Log, F-Log2 or RAW. Here the frame starts as a flat log file, and Input Space turns it into a normal picture.', space: true },
   { name: 'Base', desc: 'Exposure and contrast. Get the brightness right before anything else.' },
   { name: 'Balance', desc: 'White balance: temperature and tint, so neutral things read neutral.' },
   { name: 'Curves', desc: 'Shape the tone: a gentle S, lifted blacks, softer highlights.' },
   { name: 'Color', desc: 'Vibrance and saturation, plus an 8-band HSL mixer for each colour.' },
   { name: 'Skin', desc: 'No faces in this frame, so Skin has nothing to protect. On people it keeps skin natural under a strong look.',
-    descFace: 'Finds skin tones and keeps them natural: the look still lands on the frame, but the face stays true.' },
+    descFace: 'Finds skin and evens it out: smoother, warmer, a touch brighter. Then it holds the face back so the look lands on the frame but the skin stays true.' },
   { name: 'Detail', desc: 'Sharpness and clarity bring out texture without halos.' },
   { name: 'Look', desc: 'Colour wheels and .cube LUTs set the mood. Built-in looks land here.' },
   { name: 'Effects', desc: 'Glow and vignette pull the eye into the frame.' },
   { name: 'Output Space', desc: 'Film texture as the last step: halation and grain, then out to the screen.', space: true },
 ];
 
-// One frame per colour of the rainbow, plus one in monochrome. Each wears the built-in look that
+// One frame per colour of the rainbow, a portrait (next to the red, for its warm brick) and one in
+// monochrome. Each wears the built-in look that
 // suits its scene, light and time of day, and every look group is used: Cinematic, Nature, Streets,
 // Travel, Diary. The numbers translate each look's settings in SPUD into this page's simplified nodes.
 // p0: exposure (stops), contrast, temperature, tint | p1: curve S, black lift, vibrance, saturation
@@ -27,26 +28,29 @@ const NODES = [
 // skin: how much the Skin node holds faces back from the look (0 when there are no people)
 const FRAMES = [
   { id: 'red-panels', caption: 'Sydney, red panels · X-T5', look: 'Print Film', group: 'Cinematic',
-    p0: [0.0, 1.16, 0.0, 0.0], p1: [0.25, 0.025, 0.04, 1.0], p2: [0.3, 0.15, 0.8, 0.0], p3: [0.25, 0.05, 0.35, 0.08],
+    p0: [0.0, 1.16, 0.18, -0.05], p1: [0.35, 0.025, 0.0, 1.15], p2: [0.55, 0.3, 0.8, 0.0], p3: [0.25, 0.05, 0.45, 0.08],
     sh: [-0.03, 0.005, 0.03], hi: [0.03, 0.015, -0.02], skin: 0 },
+  { id: 'portrait', caption: 'Sydney, portrait · X-T5', look: 'Portrait Film', group: 'Cinematic',
+    p0: [0.15, 0.9, 0.2, 0.03], p1: [0.2, 0.05, 0.1, 0.75], p2: [1.2, 0.3, 0.9, 0.03], p3: [0.25, 0.1, 0.25, 0.06],
+    sh: [-0.02, 0.005, 0.02], hi: [0.03, 0.012, -0.02], skin: 1 },
   { id: 'fushimi-inari', caption: 'Fushimi Inari, Kyoto · X-M5', look: 'Golden Diary', group: 'Diary',
-    p0: [-0.1, 1.12, 0.15, 0.05], p1: [0.22, 0.035, -0.06, 0.98], p2: [0.3, 0.2, 0.85, 0.03], p3: [0.12, 0.1, 0.12, 0.05],
+    p0: [-0.1, 1.12, 0.22, 0.05], p1: [0.22, 0.035, 0.0, 0.86], p2: [0.5, 0.3, 0.85, 0.03], p3: [0.12, 0.1, 0.35, 0.08],
     sh: [0.02, 0.01, -0.015], hi: [0.03, 0.015, -0.025], skin: 0 },
   { id: 'sydney-train', caption: 'Sydney train · X-T5', look: 'Clean Wanderer', group: 'Travel',
-    p0: [-0.08, 1.14, 0.07, 0.02], p1: [0.2, 0.0, 0.22, 0.89], p2: [0.3, 0.08, 0.4, 0.0], p3: [0.08, 0.02, 0.0, 0.03],
-    sh: [0.01, 0.005, -0.005], hi: [0.012, 0.006, -0.01], skin: 0 },
+    p0: [-0.08, 1.14, 0.12, 0.12], p1: [0.2, 0.0, 0.0, 0.86], p2: [0.7, 0.35, 1.0, 0.0], p3: [0.22, 0.04, 0.35, 0.08],
+    sh: [-0.02, 0.005, 0.02], hi: [0.025, 0.012, -0.02], skin: 0 },
   { id: 'blue-mountains-stairs', caption: 'Blue Mountains rainforest · X-T5', look: 'Mist Forest', group: 'Nature',
-    p0: [0.1, 1.22, -0.12, 0.036], p1: [0.28, 0.02, 0.18, 1.0], p2: [0.3, -0.04, 1.0, 0.02], p3: [0.08, 0.04, 0.06, 0.04],
+    p0: [0.1, 1.22, -0.25, 0.036], p1: [0.28, 0.02, 0.2, 1.25], p2: [0.5, 0.15, 1.0, 0.02], p3: [0.22, 0.04, 0.35, 0.08],
     sh: [-0.045, 0.015, 0.035], hi: [-0.01, 0.0, 0.015], skin: 0 },
   { id: 'sydney-beach', caption: 'Sydney beach · X-T5', look: 'Teal Coast', group: 'Travel',
-    p0: [-0.1, 1.18, -0.07, 0.0], p1: [0.3, 0.015, 0.1, 1.0], p2: [0.35, 0.25, 0.8, 0.0], p3: [0.18, 0.05, 0.14, 0.05],
-    sh: [-0.03, 0.005, 0.025], hi: [0.035, 0.015, -0.025], skin: 0 },
+    p0: [-0.1, 1.18, -0.22, 0.0], p1: [0.4, 0.015, 0.1, 1.15], p2: [0.8, 0.4, 1.0, 0.0], p3: [0.18, 0.05, 0.35, 0.08],
+    sh: [-0.04, 0.008, 0.035], hi: [0.045, 0.02, -0.035], skin: 0 },
   { id: 'darling-harbour', caption: 'Darling Harbour, blue hour · X-T5', look: 'Metro Night', group: 'Streets',
-    p0: [-0.1, 1.12, 0.1, 0.03], p1: [0.22, 0.0, -0.05, 0.96], p2: [0.35, 0.15, 1.0, 0.02], p3: [0.16, 0.2, 0.25, 0.06],
+    p0: [0.15, 1.25, -0.28, 0.03], p1: [0.22, 0.0, 0.0, 1.3], p2: [0.7, 0.35, 1.0, 0.02], p3: [0.3, 0.3, 0.8, 0.08],
     sh: [-0.02, 0.01, 0.01], hi: [0.04, 0.02, -0.03], skin: 0 },
   { id: 'misty-gums', caption: 'Blue Mountains mist · X-T5', look: 'Mono Contrast', group: 'Cinematic',
-    p0: [0.0, 1.28, 0.0, 0.0], p1: [0.3, 0.0, 0.0, 0.0], p2: [0.35, 0.26, 0.0, 0.0], p3: [0.3, 0.0, 0.0, 0.1],
-    sh: [0.0, 0.0, 0.0], hi: [0.0, 0.0, 0.0], skin: 0 },
+    p0: [0.0, 1.28, 0.25, 0.0], p1: [0.3, 0.0, 0.0, 0.0], p2: [0.5, 0.3, 0.8, 0.04], p3: [0.3, 0.0, 0.0, 0.1],
+    sh: [-0.02, 0.0, 0.02], hi: [0.025, 0.012, -0.02], skin: 0 },
 ];
 const size = () => (innerWidth < 700 ? 900 : 1800);
 const src = (f, w = size()) => `assets/plates/${f.id}-${w}.jpg`;
@@ -90,7 +94,7 @@ vec3 grade(sampler2D t, vec2 uv){
   c = 0.18 * exp2(log2(max(c, 1e-5) / 0.18) * mix(1.0, u_p0.y, a));
   // Balance: temperature and tint as channel gains that keep brightness
   a = A(2);
-  vec3 wb = vec3(1.0 + 0.2*u_p0.z, 1.0 - 0.15*u_p0.w, 1.0 - 0.2*u_p0.z); wb /= luma(wb);
+  vec3 wb = vec3(1.0 + 0.8*u_p0.z, 1.0 - 0.6*u_p0.w, 1.0 - 0.8*u_p0.z); wb /= luma(wb);
   c *= mix(vec3(1.0), wb, a);
   vec3 d = clamp(toSrgb(c), 0.0, 1.2);
   // Curves: S-curve, lifted blacks, rolled-off highlights
@@ -104,22 +108,28 @@ vec3 grade(sampler2D t, vec2 uv){
   float l = luma(d);
   float sat = max(max(d.r, d.g), d.b) - min(min(d.r, d.g), d.b);
   d = mix(d, l + (d - l) * (u_p1.w + u_p1.z * (1.0 - sat)), a);
-  // Skin: find skin-coloured pixels (warm hue, moderate saturation) and remember them as they are now,
-  // so the Look and Effects nodes below are partly held back there. Frames without people skip it.
+  // Skin: find skin-coloured pixels (warm hue, moderate saturation), even them out (smoother texture,
+  // hue pulled toward a natural skin tone, a little lift), then remember them as they are now, so the
+  // Look and Effects nodes below are partly held back there. Frames without people skip it.
   float sh = 0.0;
   if (u_skin > 0.0) {
     vec3 k = clamp(d, 0.0, 1.0);
     float ks = max(k.r, max(k.g, k.b)) - min(k.b, min(k.r, k.g));
     sh = step(k.b, k.g) * step(k.g, k.r) * smoothstep(0.08, 0.2, ks) * (1.0 - smoothstep(0.55, 0.75, ks / max(k.r, 1e-3)))
-       * smoothstep(0.12, 0.25, k.r) * u_skin;
+       * smoothstep(0.12, 0.25, k.r) * smoothstep(0.56, 0.66, k.g / max(k.r, 1e-3)) * u_skin;
+    a = A(5) * sh;
+    float lk = luma(d);
+    vec3 smooth_ = d + (luma(blurAt(t, uv, 2.5)) - luma(src)) * 1.0;
+    vec3 tone = lk * vec3(1.24, 0.94, 0.74);
+    d = mix(d, mix(smooth_, tone, 0.55) * 1.13, a);
   }
   vec3 skinRef = d;
   // Detail: fine sharpening and midtone clarity from the source's blur differences
   a = A(6);
   float ls = luma(src);
-  float b1 = luma(blurAt(t, uv, 1.0)), b4 = luma(blurAt(t, uv, 4.0));
+  float b1 = luma(blurAt(t, uv, 1.5)), b4 = luma(blurAt(t, uv, 4.5));
   float mid = 1.0 - abs(2.0*l - 1.0);
-  d += a * (u_p2.x * (ls - b1) * 1.2 + u_p2.y * (ls - b4) * mid * 0.8);
+  d += a * (1.0 - 0.7 * sh) * (u_p2.x * (ls - b1) * 2.0 + u_p2.y * (ls - b4) * mid * 1.4);
   // Look: split-tone shadows and highlights, then a slight fade
   a = A(7);
   l = luma(clamp(d, 0.0, 1.0));
@@ -140,6 +150,10 @@ vec3 grade(sampler2D t, vec2 uv){
   vec3 bh = blurAt(t, uv, 4.5);
   float h = smoothstep(0.8, 1.0, luma(bh));
   d += a * u_p3.z * h * vec3(1.0, 0.32, 0.1) * 0.55;
+  // Input Space: before it is set, show the frame as a flat log file (an F-Log-style curve)
+  vec3 lin = toLin(src);
+  vec3 flat_ = 0.245 * log(5.555556 * lin + 0.064829) / log(10.0) + 0.384316;
+  d = mix(flat_ * 1.25 - 0.03, d, A(0));
   return d;
 }
 
@@ -213,7 +227,9 @@ function loadImg(url) {
 /* ---------------- state ---------------- */
 let frame = 0, node = reduce ? 9 : 0, before = false, mix = 1, mixT0 = 0;
 let wipe = 2, wipeT0 = 0, wlo = -1, whi = -1; const WIPE_MS = 900;
-const amt = new Float32Array(10).fill(0); amt[0] = 1;
+// pre: the play starts on the flat log file, before Input Space is set (never with reduced motion)
+let pre = !reduce;
+const amt = new Float32Array(10).fill(0); amt[0] = pre ? 0 : 1;
 if (reduce) amt.fill(1);
 let glOK = false, visible = true, raf = 0, last = 0, fpsN = 0, fpsT = 0, lastSeed = -1, dirty = true;
 // grain gets a new pattern every 42 ms (24 fps); once the grade settles, frames in between are skipped
@@ -222,7 +238,7 @@ const GRAIN_MS = 42;
 const seedAt = (t) => (reduce ? 0 : Math.floor(t / GRAIN_MS) % 997);
 const fpsEl = $('[data-fps]');
 
-function target(i) { return i === 0 ? 1 : before ? 0 : i <= node ? 1 : 0; }
+function target(i) { return i === 0 ? (pre && !before ? 0 : 1) : before ? 0 : i <= node ? 1 : 0; }
 function settled() { for (let i = 0; i < 10; i++) if (Math.abs(amt[i] - target(i)) > 0.001) return false; return mix >= 1 && wipe >= 1; }
 const grainLive = () => !reduce && amt[9] > 0.01;
 
@@ -287,7 +303,9 @@ function scramble(el, text) {
 
 function setNode(i, user = true) {
   if (user) stopPlay();
-  const prev = node;
+  const wasPre = pre;
+  if (user || i > 0) pre = false;
+  const prev = wasPre && !pre ? -1 : node;
   node = Math.max(0, Math.min(9, i));
   if (!reduce && node > prev && glOK) {
     wlo = wipe < 1 ? Math.min(wlo, prev) : prev; whi = node;
@@ -336,8 +354,11 @@ function stopPlay() { clearTimeout(playTimer); playTimer = 0; }
 function play() {
   stopPlay();
   if (reduce) { setNode(9, false); return; }
-  setNode(0, false);
-  const next = () => { if (node < 9) { setNode(node + 1, false); playTimer = setTimeout(next, node === 9 ? 0 : 1250); } };
+  pre = true; setNode(0, false);
+  const next = () => {
+    if (pre) { pre = false; node = -1; setNode(0, false); playTimer = setTimeout(next, 1250); return; }
+    if (node < 9) { setNode(node + 1, false); playTimer = setTimeout(next, node === 9 ? 0 : 1250); }
+  };
   playTimer = setTimeout(next, 900);
 }
 $('[data-play]').addEventListener('click', play);
