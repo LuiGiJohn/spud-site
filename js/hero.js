@@ -35,7 +35,7 @@ const FRAMES = [
   { id: 'sydney-train', caption: 'Sydney train · X-T5', look: 'Clean Wanderer', group: 'Travel',
     p0: [-0.08, 1.14, 0.07, 0.02], p1: [0.2, 0.0, 0.22, 0.89], p2: [0.3, 0.08, 0.4, 0.0], p3: [0.08, 0.02, 0.0, 0.03],
     sh: [0.01, 0.005, -0.005], hi: [0.012, 0.006, -0.01], skin: 0 },
-  { id: 'blue-mountains-walk', caption: 'Blue Mountains · X-T5', look: 'Mist Forest', group: 'Nature',
+  { id: 'blue-mountains-stairs', caption: 'Blue Mountains rainforest · X-T5', look: 'Mist Forest', group: 'Nature',
     p0: [0.1, 1.22, -0.12, 0.036], p1: [0.28, 0.02, 0.18, 1.0], p2: [0.3, -0.04, 1.0, 0.02], p3: [0.08, 0.04, 0.06, 0.04],
     sh: [-0.045, 0.015, 0.035], hi: [-0.01, 0.0, 0.015], skin: 0 },
   { id: 'sydney-beach', caption: 'Sydney beach · X-T5', look: 'Teal Coast', group: 'Travel',
