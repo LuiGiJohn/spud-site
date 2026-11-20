@@ -26,9 +26,9 @@ const NODES = [
 // p2: detail, clarity, split-tone amount, fade | p3: vignette, glow, halation, grain | sh/hi: split-tone colours
 // skin: how much the Skin node holds faces back from the look (0 when there are no people)
 const FRAMES = [
-  { id: 'portrait', caption: 'Sydney · X-T5', look: 'Portrait Film', group: 'Cinematic',
-    p0: [0.0, 0.94, 0.12, 0.03], p1: [0.1, 0.035, 0.06, 0.95], p2: [0.2, 0.15, 0.7, 0.03], p3: [0.1, 0.06, 0.1, 0.05],
-    sh: [-0.02, 0.005, 0.02], hi: [0.03, 0.012, -0.02], skin: 1 },
+  { id: 'red-panels', caption: 'Sydney, red panels · X-T5', look: 'Print Film', group: 'Cinematic',
+    p0: [0.0, 1.16, 0.0, 0.0], p1: [0.25, 0.025, 0.04, 1.0], p2: [0.3, 0.15, 0.8, 0.0], p3: [0.25, 0.05, 0.35, 0.08],
+    sh: [-0.03, 0.005, 0.03], hi: [0.03, 0.015, -0.02], skin: 0 },
   { id: 'fushimi-inari', caption: 'Fushimi Inari, Kyoto · X-M5', look: 'Golden Diary', group: 'Diary',
     p0: [-0.1, 1.12, 0.15, 0.05], p1: [0.22, 0.035, -0.06, 0.98], p2: [0.3, 0.2, 0.85, 0.03], p3: [0.12, 0.1, 0.12, 0.05],
     sh: [0.02, 0.01, -0.015], hi: [0.03, 0.015, -0.025], skin: 0 },
