@@ -65,7 +65,7 @@ precision highp float;
 uniform sampler2D u_a, u_b; uniform float u_mix;
 uniform float u_amt[10];
 uniform vec4 u_p0, u_p1, u_p2, u_p3; uniform vec3 u_sh, u_hi; uniform float u_skin;
-uniform float u_seed, u_px, u_wipe; uniform int u_wlo, u_whi;
+uniform float u_seed, u_px, u_wipe; uniform vec2 u_grain; uniform int u_wlo, u_whi;
 float g_mask = 1.0;
 in vec2 v_uv; out vec4 o;
 
@@ -185,12 +185,12 @@ void main(){
   // Output Space: film grain, strongest in the midtones
   float l = luma(clamp(col, 0.0, 1.0));
   // grain clumps about two screen points wide, smoothed between cells so it reads as film, not pixels
-  vec2 gp = gl_FragCoord.xy / (u_px * 1.4), gi = floor(gp), gf = smoothstep(0.0, 1.0, fract(gp));
+  vec2 gp = gl_FragCoord.xy / (u_px * u_grain.x), gi = floor(gp), gf = smoothstep(0.0, 1.0, fract(gp));
   float n = mix(mix(hash(gi + u_seed), hash(gi + vec2(1, 0) + u_seed), gf.x),
                 mix(hash(gi + vec2(0, 1) + u_seed), hash(gi + vec2(1, 1) + u_seed), gf.x), gf.y) - 0.5;
   n += (hash(gl_FragCoord.xy + u_seed + 3.1) - 0.5) * 0.35;
   // tapered toward black and white so it never clips there and lifts the shadows into haze
-  col += A(9) * u_p3.w * 1.5 * n * (0.4 + 0.6 * (1.0 - abs(2.0*l - 1.0))) * min(1.0, l * 5.0) * min(1.0, (1.0 - l) * 5.0);
+  col += A(9) * u_p3.w * u_grain.y * n * (0.4 + 0.6 * (1.0 - abs(2.0*l - 1.0))) * min(1.0, l * 5.0) * min(1.0, (1.0 - l) * 5.0);
   // the wipe line
   if (u_wipe > 0.0 && u_wipe < 1.0) {
     float d = abs(uv.x - u_wipe) * float(textureSize(u_b, 0).x) / max(u_px, 1.0);
@@ -224,7 +224,7 @@ function initGL() {
   const loc = gl.getAttribLocation(prog, 'p');
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  for (const n of ['u_a', 'u_b', 'u_mix', 'u_amt', 'u_p0', 'u_p1', 'u_p2', 'u_p3', 'u_sh', 'u_hi', 'u_skin', 'u_seed', 'u_px', 'u_wipe', 'u_wlo', 'u_whi']) U[n] = gl.getUniformLocation(prog, n);
+  for (const n of ['u_a', 'u_b', 'u_mix', 'u_amt', 'u_p0', 'u_p1', 'u_p2', 'u_p3', 'u_sh', 'u_hi', 'u_skin', 'u_seed', 'u_px', 'u_grain', 'u_wipe', 'u_wlo', 'u_whi']) U[n] = gl.getUniformLocation(prog, n);
   gl.uniform1i(U.u_a, 0); gl.uniform1i(U.u_b, 1);
   texA = gl.createTexture(); texB = gl.createTexture();
 }
@@ -269,6 +269,9 @@ function draw(t) {
   gl.uniform1f(U.u_wipe, before ? 2 : wipe); gl.uniform1i(U.u_wlo, wlo); gl.uniform1i(U.u_whi, whi);
   gl.uniform1f(U.u_seed, 0);
   gl.uniform1f(U.u_px, Math.max(1, Math.round(canvas.width / canvas.clientWidth * 1.1)));
+  // grain clump size and strength: lighter and finer on phone-width screens, where each clump
+  // covers more of the small picture
+  if (canvas.clientWidth < 700) gl.uniform2f(U.u_grain, 1.0, 0.9); else gl.uniform2f(U.u_grain, 1.4, 1.5);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 function tick(t) {
