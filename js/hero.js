@@ -127,9 +127,13 @@ vec3 grade(sampler2D t, vec2 uv){
   // Detail: fine sharpening and midtone clarity from the source's blur differences
   a = A(6);
   float ls = luma(src);
-  float b1 = luma(blurAt(t, uv, 1.5)), b4 = luma(blurAt(t, uv, 4.5));
+  float b1 = luma(blurAt(t, uv, 0.8)), b4 = luma(blurAt(t, uv, 3.5));
   float mid = 1.0 - abs(2.0*l - 1.0);
-  d += a * (1.0 - 0.7 * sh) * (u_p2.x * (ls - b1) * 2.0 + u_p2.y * (ls - b4) * mid * 1.4);
+  // fine radius and a soft limit so edges get crisper without halos; applied as a gain on the
+  // graded colour, not added as grey, so shadows are not lifted and colours are not muddied
+  float dl = u_p2.x * (ls - b1) * 0.6 + u_p2.y * (ls - b4) * mid * 0.35;
+  dl = 0.03 * tanh(dl / 0.03);
+  d *= 1.0 + a * (1.0 - 0.7 * sh) * dl / max(l, 0.1);
   // Look: split-tone shadows and highlights, then a slight fade
   a = A(7);
   l = luma(clamp(d, 0.0, 1.0));
@@ -147,9 +151,20 @@ vec3 grade(sampler2D t, vec2 uv){
   d = mix(d, skinRef + (d - skinRef) * 0.35, A(5) * sh);
   // Output Space: red-orange halation around highlights
   a = A(9);
-  vec3 bh = blurAt(t, uv, 4.5);
-  float h = smoothstep(0.8, 1.0, luma(bh));
-  d += a * u_p3.z * h * vec3(1.0, 0.32, 0.1) * 0.55;
+  // a wide soft bloom plus a tighter rim, so the red glow reads clearly at the edges of light
+  // gather only the bright parts around this pixel (two rings), so small lights glow too
+  float h = 0.0;
+  vec2 px = 1.0 / vec2(textureSize(t, 0));
+  for (int i = 0; i < 12; i++) {
+    float ang = float(i) * 0.5236 + 0.26;
+    vec2 dir = vec2(cos(ang), sin(ang));
+    h += smoothstep(0.4, 0.85, luma(textureLod(t, uv + dir * px * 7.0, 1.5).rgb)) * 0.6;
+    h += smoothstep(0.4, 0.85, luma(textureLod(t, uv + dir * px * 18.0, 2.5).rgb)) * 0.4;
+  }
+  // glow only where the light spills onto darker surroundings, not over the bright area itself
+  h = smoothstep(0.0, 0.5, max(h / 12.0 - smoothstep(0.4, 0.85, luma(src)), 0.0));
+  vec3 hal = a * min(u_p3.z * 1.6, 1.0) * h * vec3(1.0, 0.3, 0.08);
+  d = 1.0 - (1.0 - clamp(d, 0.0, 1.0)) * (1.0 - hal);
   // Input Space: before it is set, show the frame as a flat log file (an F-Log-style curve)
   vec3 lin = toLin(src);
   vec3 flat_ = 0.245 * log(5.555556 * lin + 0.064829) / log(10.0) + 0.384316;
@@ -169,8 +184,13 @@ void main(){
   vec3 col = m < 1.0 ? mix(grade(u_a, uvw), grade(u_b, uvw), smoothstep(0.0, 1.0, m)) : grade(u_b, uv);
   // Output Space: film grain, strongest in the midtones
   float l = luma(clamp(col, 0.0, 1.0));
-  float n = hash(floor(gl_FragCoord.xy / u_px) + u_seed) - 0.5;
-  col += A(9) * u_p3.w * n * (0.35 + 0.65 * (1.0 - abs(2.0*l - 1.0)));
+  // grain clumps about two screen points wide, smoothed between cells so it reads as film, not pixels
+  vec2 gp = gl_FragCoord.xy / (u_px * 1.4), gi = floor(gp), gf = smoothstep(0.0, 1.0, fract(gp));
+  float n = mix(mix(hash(gi + u_seed), hash(gi + vec2(1, 0) + u_seed), gf.x),
+                mix(hash(gi + vec2(0, 1) + u_seed), hash(gi + vec2(1, 1) + u_seed), gf.x), gf.y) - 0.5;
+  n += (hash(gl_FragCoord.xy + u_seed + 3.1) - 0.5) * 0.35;
+  // tapered toward black and white so it never clips there and lifts the shadows into haze
+  col += A(9) * u_p3.w * 1.5 * n * (0.4 + 0.6 * (1.0 - abs(2.0*l - 1.0))) * min(1.0, l * 5.0) * min(1.0, (1.0 - l) * 5.0);
   // the wipe line
   if (u_wipe > 0.0 && u_wipe < 1.0) {
     float d = abs(uv.x - u_wipe) * float(textureSize(u_b, 0).x) / max(u_px, 1.0);
