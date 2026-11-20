@@ -19,7 +19,7 @@ const NODES = [
   { name: 'Output Space', desc: 'Film texture as the last step: halation and grain, then out to the screen.', space: true },
 ];
 
-// One frame per colour of the rainbow, a portrait (next to the red, for its warm brick) and one in
+// One frame per colour of the rainbow, a portrait (by the sea, next to the red) and one in
 // monochrome. Each wears the built-in look that
 // suits its scene, light and time of day, and every look group is used: Cinematic, Nature, Streets,
 // Travel, Diary. The numbers translate each look's settings in SPUD into this page's simplified nodes.
@@ -30,14 +30,14 @@ const FRAMES = [
   { id: 'red-panels', caption: 'Sydney, red panels · X-T5', look: 'Print Film', group: 'Cinematic',
     p0: [0.0, 1.16, 0.18, -0.05], p1: [0.35, 0.025, 0.0, 1.15], p2: [0.55, 0.3, 0.8, 0.0], p3: [0.25, 0.05, 0.45, 0.08],
     sh: [-0.03, 0.005, 0.03], hi: [0.03, 0.015, -0.02], skin: 0 },
-  { id: 'portrait', caption: 'Sydney, portrait · X-T5', look: 'Portrait Film', group: 'Cinematic',
-    p0: [0.15, 0.9, 0.2, 0.03], p1: [0.2, 0.05, 0.1, 0.75], p2: [1.2, 0.3, 0.9, 0.03], p3: [0.25, 0.1, 0.25, 0.06],
+  { id: 'portrait-coast', caption: 'Sydney coast, portrait · X-T5', look: 'Portrait Film', group: 'Cinematic',
+    p0: [-0.2, 1.12, -0.15, 0.02], p1: [0.25, 0.03, 0.35, 1.0], p2: [2.0, 0.5, 0.9, 0.02], p3: [0.18, 0.04, 0.25, 0.06],
     sh: [-0.02, 0.005, 0.02], hi: [0.03, 0.012, -0.02], skin: 1 },
   { id: 'fushimi-inari', caption: 'Fushimi Inari, Kyoto · X-M5', look: 'Golden Diary', group: 'Diary',
     p0: [-0.1, 1.12, 0.22, 0.05], p1: [0.22, 0.035, 0.0, 0.86], p2: [0.5, 0.3, 0.85, 0.03], p3: [0.12, 0.1, 0.35, 0.08],
     sh: [0.02, 0.01, -0.015], hi: [0.03, 0.015, -0.025], skin: 0 },
-  { id: 'sydney-train', caption: 'Sydney train · X-T5', look: 'Clean Wanderer', group: 'Travel',
-    p0: [-0.08, 1.14, 0.12, 0.12], p1: [0.2, 0.0, 0.0, 0.86], p2: [0.7, 0.35, 1.0, 0.0], p3: [0.22, 0.04, 0.35, 0.08],
+  { id: 'ferry-slats', caption: 'Sydney ferry, yellow slats · X-T5', look: 'Clean Wanderer', group: 'Travel',
+    p0: [-0.05, 1.14, -0.1, -0.08], p1: [0.2, 0.0, 0.0, 0.86], p2: [0.7, 0.35, 1.0, 0.0], p3: [0.14, 0.04, 0.3, 0.08],
     sh: [-0.02, 0.005, 0.02], hi: [0.025, 0.012, -0.02], skin: 0 },
   { id: 'blue-mountains-stairs', caption: 'Blue Mountains rainforest · X-T5', look: 'Mist Forest', group: 'Nature',
     p0: [0.1, 1.22, -0.25, 0.036], p1: [0.28, 0.02, 0.2, 1.25], p2: [0.5, 0.15, 1.0, 0.02], p3: [0.22, 0.04, 0.35, 0.08],
@@ -115,13 +115,13 @@ vec3 grade(sampler2D t, vec2 uv){
   if (u_skin > 0.0) {
     vec3 k = clamp(d, 0.0, 1.0);
     float ks = max(k.r, max(k.g, k.b)) - min(k.b, min(k.r, k.g));
-    sh = step(k.b, k.g) * step(k.g, k.r) * smoothstep(0.08, 0.2, ks) * (1.0 - smoothstep(0.55, 0.75, ks / max(k.r, 1e-3)))
-       * smoothstep(0.12, 0.25, k.r) * smoothstep(0.56, 0.66, k.g / max(k.r, 1e-3)) * u_skin;
+    sh = smoothstep(-0.06, 0.02, k.g - k.b) * smoothstep(-0.04, 0.03, k.r - k.g) * smoothstep(0.05, 0.2, ks) * (1.0 - smoothstep(0.55, 0.75, ks / max(k.r, 1e-3)))
+       * smoothstep(0.12, 0.25, k.r) * smoothstep(0.5, 0.66, k.g / max(k.r, 1e-3)) * u_skin;
     a = A(5) * sh;
     float lk = luma(d);
     vec3 smooth_ = d + (luma(blurAt(t, uv, 2.5)) - luma(src)) * 1.0;
     vec3 tone = lk * vec3(1.24, 0.94, 0.74);
-    d = mix(d, mix(smooth_, tone, 0.55) * 1.13, a);
+    d = mix(d, mix(smooth_, tone, 0.45) * 1.1, a);
   }
   vec3 skinRef = d;
   // Detail: fine sharpening and midtone clarity from the source's blur differences
@@ -231,16 +231,13 @@ let wipe = 2, wipeT0 = 0, wlo = -1, whi = -1; const WIPE_MS = 900;
 let pre = !reduce;
 const amt = new Float32Array(10).fill(0); amt[0] = pre ? 0 : 1;
 if (reduce) amt.fill(1);
-let glOK = false, visible = true, raf = 0, last = 0, fpsN = 0, fpsT = 0, lastSeed = -1, dirty = true;
-// grain gets a new pattern every 42 ms (24 fps); once the grade settles, frames in between are skipped
-// unless something asked for a redraw (dirty, set by kick)
-const GRAIN_MS = 42;
-const seedAt = (t) => (reduce ? 0 : Math.floor(t / GRAIN_MS) % 997);
+let glOK = false, visible = true, raf = 0, last = 0, fpsN = 0, fpsT = 0, dirty = true;
+// grain is a still pattern: it does not move, so once the grade settles nothing redraws
+// unless something asked for it (dirty, set by kick)
 const fpsEl = $('[data-fps]');
 
 function target(i) { return i === 0 ? (pre && !before ? 0 : 1) : before ? 0 : i <= node ? 1 : 0; }
 function settled() { for (let i = 0; i < 10; i++) if (Math.abs(amt[i] - target(i)) > 0.001) return false; return mix >= 1 && wipe >= 1; }
-const grainLive = () => !reduce && amt[9] > 0.01;
 
 function draw(t) {
   const f = FRAMES[frame];
@@ -250,8 +247,7 @@ function draw(t) {
   gl.uniform4fv(U.u_p0, f.p0); gl.uniform4fv(U.u_p1, f.p1); gl.uniform4fv(U.u_p2, f.p2); gl.uniform4fv(U.u_p3, f.p3);
   gl.uniform3fv(U.u_sh, f.sh); gl.uniform3fv(U.u_hi, f.hi); gl.uniform1f(U.u_skin, f.skin);
   gl.uniform1f(U.u_wipe, before ? 2 : wipe); gl.uniform1i(U.u_wlo, wlo); gl.uniform1i(U.u_whi, whi);
-  lastSeed = seedAt(t);
-  gl.uniform1f(U.u_seed, lastSeed);
+  gl.uniform1f(U.u_seed, 0);
   gl.uniform1f(U.u_px, Math.max(1, Math.round(canvas.width / canvas.clientWidth * 1.1)));
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
@@ -262,9 +258,9 @@ function tick(t) {
   for (let i = 0; i < 10; i++) amt[i] = (wipe < 1 && i > wlo && i <= whi && !before) ? 1 : amt[i] + (target(i) - amt[i]) * (reduce ? 1 : k);
   if (mix < 1) mix = reduce ? 1 : Math.min(1, (t - mixT0) / 650);
   if (wipe < 1) { const p = Math.min(1, (t - wipeT0) / WIPE_MS); wipe = p < 1 ? 1 - Math.pow(1 - p, 3) : 2; }
-  if (dirty || !settled() || seedAt(t) !== lastSeed) { dirty = false; draw(t); fpsN++; }
+  if (dirty || !settled()) { dirty = false; draw(t); fpsN++; }
   if (t - fpsT > 1000) { if (fpsEl) fpsEl.textContent = String(Math.round(fpsN * 1000 / (t - fpsT))); fpsN = 0; fpsT = t; }
-  if (visible && !document.hidden && (!settled() || grainLive())) raf = requestAnimationFrame(tick);
+  if (visible && !document.hidden && !settled()) raf = requestAnimationFrame(tick);
   else { last = 0; if (fpsEl && settled()) fpsEl.textContent = 'idle'; }
 }
 function kick() { dirty = true; if (glOK && !raf) { fpsT = performance.now(); fpsN = 0; raf = requestAnimationFrame(tick); } if (!glOK) applyFallback(); }
@@ -361,7 +357,6 @@ function play() {
   };
   playTimer = setTimeout(next, 900);
 }
-$('[data-play]').addEventListener('click', play);
 
 /* before / after: hold the button or the \ key */
 const baBtn = $('[data-before]');
